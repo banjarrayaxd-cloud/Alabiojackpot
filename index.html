@@ -3,79 +3,91 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mahjong Style Slot Demo</title>
+<title>Mahjong Style Slot Premium</title>
 <style>
-body {
+body{
   margin:0;
-  background:linear-gradient(#0f2027,#203a43,#2c5364);
-  font-family:Arial, sans-serif;
+  background:radial-gradient(circle at top,#1e3c72,#0f2027);
+  font-family:Arial;
   color:white;
   text-align:center;
 }
 
-h1 { margin:10px; }
+h1{margin:10px;}
 
-.topbar {
+.topbar{
   display:flex;
   justify-content:space-around;
   padding:10px;
   font-size:18px;
 }
 
-.grid {
+.grid{
   display:grid;
-  grid-template-columns:repeat(5,70px);
-  grid-template-rows:repeat(4,70px);
-  gap:5px;
+  grid-template-columns:repeat(5,75px);
+  grid-template-rows:repeat(4,75px);
+  gap:6px;
   justify-content:center;
   margin:20px auto;
 }
 
-.cell {
-  background:gold;
+.cell{
+  background:linear-gradient(gold,#c9a300);
   color:black;
-  font-size:24px;
+  font-size:26px;
   display:flex;
   align-items:center;
   justify-content:center;
-  border-radius:10px;
+  border-radius:12px;
   transition:0.3s;
 }
 
-.win {
+.win{
   background:lime;
-  transform:scale(1.1);
+  transform:scale(1.15);
 }
 
-.controls {
-  margin:20px;
+.scatter{
+  background:orange !important;
 }
 
-button {
+.controls{
+  margin:15px;
+}
+
+button{
   padding:10px 20px;
   font-size:16px;
   border:none;
-  border-radius:5px;
+  border-radius:6px;
   margin:5px;
   cursor:pointer;
 }
 
-.spin {
+.spin{
   background:red;
   color:white;
   font-size:20px;
 }
 
+.message{
+  font-size:22px;
+  margin-top:10px;
+  height:30px;
+  font-weight:bold;
+  color:gold;
+}
 </style>
 </head>
 <body>
 
-<h1>🎰 Mahjong Style Slot (Demo)</h1>
+<h1>🎰 Mahjong Style Slot Premium (Demo)</h1>
 
 <div class="topbar">
   <div>Saldo: <span id="balance">1000</span></div>
   <div>Bet: <span id="bet">10</span></div>
   <div>Multiplier: x<span id="multi">1</span></div>
+  <div>FreeSpin: <span id="freespin">0</span></div>
 </div>
 
 <div class="grid" id="grid"></div>
@@ -86,20 +98,33 @@ button {
   <button class="spin" onclick="spin()">SPIN</button>
 </div>
 
+<div class="message" id="message"></div>
+
 <script>
-const symbols = ["🀄","🀅","🀆","🀇","🀈","🀉","🀊"];
-const gridEl = document.getElementById("grid");
-let balance = 1000;
-let bet = 10;
-let multiplier = 1;
+const symbols=["🀄","🀅","🀆","🀇","🀈","🀉"];
+const scatterSymbol="💎";
+
+const gridEl=document.getElementById("grid");
+let balance=1000;
+let bet=10;
+let multiplier=1;
+let freeSpin=0;
 
 function updateUI(){
-  document.getElementById("balance").innerText = balance;
-  document.getElementById("bet").innerText = bet;
-  document.getElementById("multi").innerText = multiplier;
+  balanceEl.innerText=balance;
+  betEl.innerText=bet;
+  multiEl.innerText=multiplier;
+  freeEl.innerText=freeSpin;
 }
 
+const balanceEl=document.getElementById("balance");
+const betEl=document.getElementById("bet");
+const multiEl=document.getElementById("multi");
+const freeEl=document.getElementById("freespin");
+const messageEl=document.getElementById("message");
+
 function randomSymbol(){
+  if(Math.random()<0.1) return scatterSymbol;
   return symbols[Math.floor(Math.random()*symbols.length)];
 }
 
@@ -114,41 +139,62 @@ function createGrid(){
 }
 
 function spin(){
-  if(balance<bet) return alert("Saldo habis!");
-  balance-=bet;
+  if(balance<bet && freeSpin==0){
+    alert("Saldo habis!");
+    return;
+  }
+
+  if(freeSpin>0){
+    freeSpin--;
+  } else {
+    balance-=bet;
+  }
+
   multiplier=1;
+  messageEl.innerText="";
   createGrid();
-  checkWin();
+  setTimeout(checkResult,400);
   updateUI();
 }
 
-function checkWin(){
+function checkResult(){
   const cells=document.querySelectorAll(".cell");
-  let winCount=0;
   let map={};
+  let scatterCount=0;
 
   cells.forEach(cell=>{
     map[cell.innerText]=(map[cell.innerText]||0)+1;
+    if(cell.innerText==scatterSymbol){
+      cell.classList.add("scatter");
+      scatterCount++;
+    }
   });
 
+  if(scatterCount>=3){
+    freeSpin+=5;
+    messageEl.innerText="🎁 FREE SPIN +5!";
+  }
+
+  let win=false;
   for(let key in map){
-    if(map[key]>=4){
-      winCount+=map[key];
+    if(key!=scatterSymbol && map[key]>=4){
+      win=true;
       cells.forEach(cell=>{
         if(cell.innerText==key){
           cell.classList.add("win");
         }
       });
+      let winAmount=bet*multiplier*(map[key]/4);
+      balance+=Math.floor(winAmount);
+      multiplier++;
+      messageEl.innerText="✨ WIN x"+multiplier;
     }
   }
 
-  if(winCount>0){
-    let winAmount=bet*multiplier*(winCount/4);
-    balance+=Math.floor(winAmount);
-    multiplier++;
-    setTimeout(()=>{
-      cascade();
-    },500);
+  updateUI();
+
+  if(win){
+    setTimeout(cascade,500);
   }
 }
 
@@ -160,8 +206,7 @@ function cascade(){
       cell.innerText=randomSymbol();
     }
   });
-  checkWin();
-  updateUI();
+  setTimeout(checkResult,400);
 }
 
 function changeBet(val){
