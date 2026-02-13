@@ -125,6 +125,11 @@ function updateUI(){
   balanceEl.innerText = "Rp " + balance.toLocaleString("id-ID");
 }
 
+  function setBet(amount){
+    bet = amount;
+    updateUI();
+  }
+
 function randomSymbol(){
   return symbols[Math.floor(Math.random()*symbols.length)];
 }
