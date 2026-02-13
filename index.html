@@ -117,9 +117,14 @@ const balanceEl=document.getElementById("balance");
 const betEl=document.getElementById("bet");
 const bigwinEl=document.getElementById("bigwin");
 
+function formatRupiah(angka){
+  return "Rp " + angka.toLocaleString("id-ID");
+}
+
 function updateUI(){
-  balanceEl.innerText=balance;
-  betEl.innerText=bet;
+  balanceEl.innerText = formatRupiah(balance);
+  betEl.innerText = formatRupiah(bet);
+}
 }
 
 function randomSymbol(){
