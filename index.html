@@ -99,8 +99,12 @@ h1{
 <div class="slot" id="slot"></div>
 
 <div class="controls">
-  <button onclick="changeBet(-10)">- Bet</button>
-  <button onclick="changeBet(10)">+ Bet</button>
+  <div style="margin-bottom:10px;">
+  <button onclick="setBet(1000)">1000</button>
+  <button onclick="setBet(2000)">2000</button>
+  <button onclick="setBet(5000)">5000</button>
+  <button onclick="setBet(10000)">10000</button>
+  </div>
   <button class="spin" onclick="spin()">SPIN</button>
 </div>
 
