@@ -92,7 +92,7 @@ h1{
 <h1>🎰 ALABIO Pangkalan Sari Slot</h1>
 
 <div class="topbar">
-  <div>Saldo: <span id="balance">1000</span></div>
+  <div>Saldo: <span id="balance">1000000</span></div>
   <div>Bet: <span id="bet">10</span></div>
 </div>
 
@@ -109,8 +109,8 @@ h1{
 <script>
 const symbols=["🀄","🀅","🀆","🀇","🀈","🀉","💎"];
 
-let balance=1000;
-let bet=10;
+let balance=1000000;
+let bet=1000;
 
 const slot=document.getElementById("slot");
 const balanceEl=document.getElementById("balance");
@@ -118,8 +118,7 @@ const betEl=document.getElementById("bet");
 const bigwinEl=document.getElementById("bigwin");
 
 function updateUI(){
-  balanceEl.innerText=balance;
-  betEl.innerText=bet;
+  balanceEl.innerText = "Rp " + balance.toLocaleString("id-ID");
 }
 
 function randomSymbol(){
