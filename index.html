@@ -28,6 +28,8 @@ h1{margin:10px;color:gold;text-shadow:0 0 15px gold;}
 #login-form{margin-top:50px;}
 #login-form input{padding:8px;margin:5px;border-radius:5px;border:none;font-size:16px;}
 #login-form button{padding:8px 15px;margin:5px;border:none;border-radius:8px;background:#ff6600;color:white;cursor:pointer;}
+#history{max-height:150px;overflow-y:auto;margin-top:15px;background:rgba(255,255,255,0.1);padding:10px;border-radius:8px;text-align:left;}
+#logoutBtn{padding:5px 12px;margin-top:5px;border:none;border-radius:5px;background:#ff3333;color:white;cursor:pointer;}
 </style>
 
 <!-- FIREBASE CDN COMPAT (versi 9.22.1) -->
@@ -50,6 +52,7 @@ h1{margin:10px;color:gold;text-shadow:0 0 15px gold;}
 
 <!-- SLOT GAME -->
 <div id="gameBox" style="display:none;">
+  <button id="logoutBtn" onclick="logoutUser()">Logout</button>
   <div class="topbar">
     <div>Saldo: <span id="balance">0</span></div>
     <div>Bet: <span id="bet">1000</span></div>
@@ -66,6 +69,9 @@ h1{margin:10px;color:gold;text-shadow:0 0 15px gold;}
     </div>
     <button class="spin" onclick="spin()">SPIN</button>
   </div>
+
+  <h3>History Spin:</h3>
+  <div id="history"></div>
 
   <div class="bigwin" id="bigwin">🔥 BIG WIN 🔥</div>
 </div>
@@ -97,6 +103,7 @@ const betEl=document.getElementById("bet");
 const bigwinEl=document.getElementById("bigwin");
 const loginForm = document.getElementById("login-form");
 const gameBox = document.getElementById("gameBox");
+const historyDiv = document.getElementById("history");
 
 // ===== LOGIN/REGISTER =====
 function registerUser(){
@@ -125,6 +132,15 @@ function loginUser(){
     .catch(err=>alert("Gagal login: "+err.message));
 }
 
+// ===== LOGOUT =====
+function logoutUser(){
+  auth.signOut().then(()=>{
+    gameBox.style.display="none";
+    loginForm.style.display="block";
+    alert("Logout sukses!");
+  });
+}
+
 // ===== INIT USER =====
 function initUser(user){
   loginForm.style.display="none";
@@ -138,6 +154,7 @@ function initUser(user){
       balance = 1000000;
     }
     updateUI();
+    loadHistory(user.uid);
   });
 }
 
@@ -200,20 +217,51 @@ function spin(){
   });
 
   setTimeout(()=>{
-    if(crownCount>=3){ freeSpins+=5; bonusMode=true; document.body.classList.add("bonus-mode"); alert("🔥 FREE SPIN MODE AKTIF! 5 SPIN + WIN x10"); }
+    let winAmount = 0;
+    if(crownCount>=3){ 
+      freeSpins+=5; 
+      bonusMode=true; 
+      document.body.classList.add("bonus-mode"); 
+      alert("🔥 FREE SPIN MODE AKTIF! 5 SPIN + WIN x10"); 
+    }
+
     let winChance = Math.random();
     if(winChance>0.7){
       let multiplier = bonusMode?10:5;
-      let winAmount = bet*multiplier;
+      winAmount = bet*multiplier;
       balance+=winAmount;
       bigwinEl.style.display="block";
       setTimeout(()=>bigwinEl.style.display="none",1500);
       updateUI();
     }
+
     if(freeSpins===0){ bonusMode=false; document.body.classList.remove("bonus-mode"); }
+
     const user = auth.currentUser;
-    if(user) db.collection("users").doc(user.uid).set({balance:balance});
+    if(user){
+      const userRef = db.collection("users").doc(user.uid);
+      userRef.set({balance:balance});
+      // simpan history
+      const spinData = {timestamp:Date.now(), bet:bet, win:winAmount};
+      userRef.collection("history").add(spinData).then(()=>loadHistory(user.uid));
+    }
+
   },1800);
+}
+
+// ===== LOAD HISTORY =====
+function loadHistory(uid){
+  historyDiv.innerHTML="";
+  db.collection("users").doc(uid).collection("history").orderBy("timestamp","desc").limit(20).get()
+    .then(snapshot=>{
+      snapshot.forEach(doc=>{
+        const data = doc.data();
+        const time = new Date(data.timestamp).toLocaleTimeString();
+        const entry = document.createElement("div");
+        entry.innerText=`[${time}] Bet: ${data.bet} | Win: ${data.win}`;
+        historyDiv.appendChild(entry);
+      });
+    });
 }
 
 createReels();
