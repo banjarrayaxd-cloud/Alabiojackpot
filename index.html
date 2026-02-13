@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mahjong Style Slot Ultimate</title>
+<title>Mahjong Style Level 5</title>
 <style>
 body{
   margin:0;
-  background:radial-gradient(circle,#1a2a6c,#16222A);
+  background:radial-gradient(circle,#0f2027,#203a43,#2c5364);
   font-family:Arial;
   color:white;
   text-align:center;
@@ -17,7 +17,7 @@ body{
 h1{
   margin:10px;
   color:gold;
-  text-shadow:0 0 10px gold;
+  text-shadow:0 0 15px gold;
 }
 
 .topbar{
@@ -27,42 +27,40 @@ h1{
   padding:8px;
 }
 
-.grid{
-  display:grid;
-  grid-template-columns:repeat(5,70px);
-  grid-template-rows:repeat(4,70px);
-  gap:6px;
+.slot{
+  display:flex;
   justify-content:center;
-  margin:15px auto;
+  margin:20px auto;
 }
 
-.cell{
-  background:linear-gradient(#ffd700,#b8860b);
-  border-radius:12px;
+.reel{
+  width:70px;
+  height:280px;
+  overflow:hidden;
+  border:2px solid gold;
+  border-radius:10px;
+  margin:0 5px;
+  background:#111;
+  position:relative;
+}
+
+.reel-inner{
+  position:absolute;
+  width:100%;
+}
+
+.symbol{
+  height:70px;
   display:flex;
   align-items:center;
   justify-content:center;
   font-size:26px;
+  background:linear-gradient(#ffd700,#b8860b);
   color:black;
-  transition:0.3s;
-  animation:drop 0.3s ease;
+  border-bottom:1px solid #333;
 }
 
-@keyframes drop{
-  from{transform:translateY(-40px);opacity:0;}
-  to{transform:translateY(0);opacity:1;}
-}
-
-.win{
-  box-shadow:0 0 15px lime;
-  transform:scale(1.2);
-}
-
-.scatter{
-  background:orange !important;
-}
-
-button{
+.controls button{
   padding:8px 15px;
   margin:5px;
   border:none;
@@ -87,149 +85,108 @@ button{
   display:none;
   text-shadow:0 0 20px gold;
 }
-
-.coin{
-  position:fixed;
-  top:-20px;
-  font-size:20px;
-  animation:fall 2s linear forwards;
-}
-
-@keyframes fall{
-  to{transform:translateY(100vh);opacity:0;}
-}
 </style>
 </head>
 <body>
 
-<h1>🎰 Mahjong Slot Ultimate (Demo)</h1>
+<h1>🎰 Mahjong Style Level 5 (Demo)</h1>
 
 <div class="topbar">
   <div>Saldo: <span id="balance">1000</span></div>
   <div>Bet: <span id="bet">10</span></div>
-  <div>Multi: x<span id="multi">1</span></div>
-  <div>Free: <span id="free">0</span></div>
 </div>
 
-<div class="grid" id="grid"></div>
+<div class="slot" id="slot"></div>
 
-<div>
+<div class="controls">
   <button onclick="changeBet(-10)">- Bet</button>
   <button onclick="changeBet(10)">+ Bet</button>
-  <button onclick="toggleTurbo()">Turbo</button>
   <button class="spin" onclick="spin()">SPIN</button>
 </div>
 
-<div class="bigwin" id="bigwin">🔥 MEGA WIN 🔥</div>
-
-<audio id="spinSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
-<audio id="winSound" src="https://actions.google.com/sounds/v1/cartoon/concussive_hit_guitar_boing.ogg"></audio>
+<div class="bigwin" id="bigwin">🔥 BIG WIN 🔥</div>
 
 <script>
-const symbols=["🀄","🀅","🀆","🀇","🀈","🀉"];
-const scatterSymbol="💎";
+const symbols=["🀄","🀅","🀆","🀇","🀈","🀉","💎"];
 
 let balance=1000;
 let bet=10;
-let multiplier=1;
-let freeSpin=0;
-let turbo=false;
 
-const gridEl=document.getElementById("grid");
+const slot=document.getElementById("slot");
 const balanceEl=document.getElementById("balance");
 const betEl=document.getElementById("bet");
-const multiEl=document.getElementById("multi");
-const freeEl=document.getElementById("free");
 const bigwinEl=document.getElementById("bigwin");
-const spinSound=document.getElementById("spinSound");
-const winSound=document.getElementById("winSound");
 
 function updateUI(){
   balanceEl.innerText=balance;
   betEl.innerText=bet;
-  multiEl.innerText=multiplier;
-  freeEl.innerText=freeSpin;
 }
 
 function randomSymbol(){
-  if(Math.random()<0.1) return scatterSymbol;
   return symbols[Math.floor(Math.random()*symbols.length)];
 }
 
-function createGrid(){
-  gridEl.innerHTML="";
-  for(let i=0;i<20;i++){
-    const div=document.createElement("div");
-    div.classList.add("cell");
-    div.innerText=randomSymbol();
-    gridEl.appendChild(div);
+function createReels(){
+  slot.innerHTML="";
+  for(let i=0;i<5;i++){
+    const reel=document.createElement("div");
+    reel.className="reel";
+
+    const inner=document.createElement("div");
+    inner.className="reel-inner";
+
+    for(let j=0;j<10;j++){
+      const sym=document.createElement("div");
+      sym.className="symbol";
+      sym.innerText=randomSymbol();
+      inner.appendChild(sym);
+    }
+
+    reel.appendChild(inner);
+    slot.appendChild(reel);
   }
 }
 
 function spin(){
-  if(balance<bet && freeSpin==0) return alert("Saldo habis!");
-
-  spinSound.play();
-
-  if(freeSpin>0) freeSpin--;
-  else balance-=bet;
-
-  multiplier=1;
-  createGrid();
-  setTimeout(checkResult, turbo?100:400);
+  if(balance<bet) return alert("Saldo habis!");
+  balance-=bet;
   updateUI();
-}
 
-function checkResult(){
-  const cells=document.querySelectorAll(".cell");
-  let map={}, scatterCount=0, totalWin=0;
+  const reels=document.querySelectorAll(".reel-inner");
 
-  cells.forEach(cell=>{
-    map[cell.innerText]=(map[cell.innerText]||0)+1;
-    if(cell.innerText==scatterSymbol){
-      cell.classList.add("scatter");
-      scatterCount++;
-    }
+  reels.forEach((reel,index)=>{
+    reel.style.transition="none";
+    reel.style.top="0px";
+
+    setTimeout(()=>{
+      reel.style.transition="top 1s ease-out";
+      reel.style.top="-350px";
+    },index*200);
+
+    setTimeout(()=>{
+      reel.style.transition="none";
+      reel.style.top="0px";
+      reel.innerHTML="";
+      for(let j=0;j<10;j++){
+        const sym=document.createElement("div");
+        sym.className="symbol";
+        sym.innerText=randomSymbol();
+        reel.appendChild(sym);
+      }
+    },1200+index*200);
   });
 
-  if(scatterCount>=3) freeSpin+=5;
+  setTimeout(checkWin,1800);
+}
 
-  for(let key in map){
-    if(key!=scatterSymbol && map[key]>=4){
-      cells.forEach(cell=>{
-        if(cell.innerText==key){
-          cell.classList.add("win");
-        }
-      });
-      totalWin+=bet*multiplier*(map[key]/4);
-      multiplier++;
-    }
-  }
-
-  if(totalWin>0){
-    winSound.play();
-    balance+=Math.floor(totalWin);
-
-    if(totalWin>bet*5){
-      showBigWin();
-      dropCoins();
-      navigator.vibrate?.(300);
-    }
-
+function checkWin(){
+  if(Math.random()<0.2){
+    let win=bet*5;
+    balance+=win;
+    bigwinEl.style.display="block";
+    setTimeout(()=>bigwinEl.style.display="none",1500);
     updateUI();
-    setTimeout(cascade, turbo?100:500);
   }
-}
-
-function cascade(){
-  const cells=document.querySelectorAll(".cell");
-  cells.forEach(cell=>{
-    if(cell.classList.contains("win")){
-      cell.classList.remove("win");
-      cell.innerText=randomSymbol();
-    }
-  });
-  setTimeout(checkResult, turbo?100:400);
 }
 
 function changeBet(val){
@@ -238,28 +195,7 @@ function changeBet(val){
   updateUI();
 }
 
-function toggleTurbo(){
-  turbo=!turbo;
-  alert("Turbo: "+(turbo?"ON":"OFF"));
-}
-
-function showBigWin(){
-  bigwinEl.style.display="block";
-  setTimeout(()=>bigwinEl.style.display="none",1500);
-}
-
-function dropCoins(){
-  for(let i=0;i<20;i++){
-    const coin=document.createElement("div");
-    coin.classList.add("coin");
-    coin.innerText="🪙";
-    coin.style.left=Math.random()*100+"vw";
-    document.body.appendChild(coin);
-    setTimeout(()=>coin.remove(),2000);
-  }
-}
-
-createGrid();
+createReels();
 updateUI();
 </script>
 
