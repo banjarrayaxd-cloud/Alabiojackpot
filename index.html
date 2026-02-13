@@ -19,14 +19,17 @@ h1{margin:10px;color:gold;text-shadow:0 0 15px gold;}
 .reel{width:70px;height:280px;overflow:hidden;border:2px solid gold;border-radius:10px;margin:0 5px;background:#111;position:relative;}
 .reel-inner{position:absolute;width:100%;}
 .symbol{height:70px;display:flex;align-items:center;justify-content:center;font-size:26px;background:linear-gradient(#ffd700,#b8860b);color:black;border-bottom:1px solid #333;}
-.controls button{padding:8px 15px;margin:5px;border:none;border-radius:8px;cursor:pointer;}
-.spin{background:red;color:white;font-size:18px;}
+.controls button{padding:8px 15px;margin:5px;border:none;border-radius:8px;cursor:pointer;transition:0.1s;}
+.controls button.bet.selected{background:orange; transform:scale(1.1);}
+.spin{background:red;color:white;font-size:18px;transition:0.1s;}
+.spin:active{transform:scale(0.95);box-shadow:0 0 10px gold inset;}
 .bigwin{position:fixed;top:40%;left:50%;transform:translate(-50%,-50%);font-size:45px;font-weight:bold;color:gold;display:none;text-shadow:0 0 20px gold;}
 .bonus-mode{background: linear-gradient(45deg, gold, orange);}
 #login-form{margin-top:50px;}
 #login-form input{padding:8px;margin:5px;border-radius:5px;border:none;font-size:16px;}
 #login-form button{padding:8px 15px;margin:5px;border:none;border-radius:8px;background:#ff6600;color:white;cursor:pointer;}
 </style>
+
 <!-- FIREBASE CDN -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
@@ -38,8 +41,8 @@ h1{margin:10px;color:gold;text-shadow:0 0 15px gold;}
 
 <!-- LOGIN FORM -->
 <div id="login-form">
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
+  <input type="email" id="email" placeholder="Email" required>
+  <input type="password" id="password" placeholder="Password" required>
   <br>
   <button onclick="registerUser()">Register</button>
   <button onclick="loginUser()">Login</button>
@@ -56,10 +59,10 @@ h1{margin:10px;color:gold;text-shadow:0 0 15px gold;}
 
   <div class="controls">
     <div style="margin-bottom:10px;">
-      <button onclick="setBet(1000)">1000</button>
-      <button onclick="setBet(2000)">2000</button>
-      <button onclick="setBet(5000)">5000</button>
-      <button onclick="setBet(10000)">10000</button>
+      <button class="bet" onclick="setBet(1000,this)">1000</button>
+      <button class="bet" onclick="setBet(2000,this)">2000</button>
+      <button class="bet" onclick="setBet(5000,this)">5000</button>
+      <button class="bet" onclick="setBet(10000,this)">10000</button>
     </div>
     <button class="spin" onclick="spin()">SPIN</button>
   </div>
@@ -99,23 +102,25 @@ const gameBox = document.getElementById("gameBox");
 function registerUser(){
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
+  if(!email || !password){ alert("Isi email & password!"); return; }
   firebase.auth().createUserWithEmailAndPassword(email,password)
-    .then((cred)=>{
+    .then(cred=>{
       alert("Register sukses: "+cred.user.email);
       initUser(cred.user);
     })
-    .catch(err=>alert(err.message));
+    .catch(err=>alert("Gagal register: "+err.message));
 }
 
 function loginUser(){
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  auth.signInWithEmailAndPassword(email,password)
-    .then((cred)=>{
+  if(!email || !password){ alert("Isi email & password!"); return; }
+  firebase.auth().signInWithEmailAndPassword(email,password)
+    .then(cred=>{
       alert("Login sukses: "+cred.user.email);
       initUser(cred.user);
     })
-    .catch(err=>alert(err.message));
+    .catch(err=>alert("Gagal login: "+err.message));
 }
 
 // ===== INIT USER =====
@@ -141,7 +146,12 @@ function updateUI(){
 }
 
 // ===== BET =====
-function setBet(amount){ bet=amount; updateUI(); }
+function setBet(amount, btn){
+  bet = amount;
+  updateUI();
+  document.querySelectorAll(".controls button.bet").forEach(b=>b.classList.remove("selected"));
+  btn.classList.add("selected");
+}
 
 // ===== SLOT FUNCTIONS =====
 function randomSymbol(){ return symbols[Math.floor(Math.random()*symbols.length)]; }
@@ -174,9 +184,7 @@ function spin(){
 
   reels.forEach((reel,index)=>{
     reel.style.transition="none"; reel.style.top="0px";
-    setTimeout(()=>{
-      reel.style.transition="top 1s ease-out"; reel.style.top="-350px";
-    },index*200);
+    setTimeout(()=>{ reel.style.transition="top 1s ease-out"; reel.style.top="-350px"; }, index*200);
     setTimeout(()=>{
       reel.style.transition="none"; reel.style.top="0px"; reel.innerHTML="";
       for(let j=0;j<10;j++){
@@ -190,7 +198,6 @@ function spin(){
   });
 
   setTimeout(()=>{
-    // FREE SPIN MODE
     if(crownCount>=3){ freeSpins+=5; bonusMode=true; document.body.classList.add("bonus-mode"); alert("🔥 FREE SPIN MODE AKTIF! 5 SPIN + WIN x10"); }
     let winChance = Math.random();
     if(winChance>0.7){
@@ -202,8 +209,7 @@ function spin(){
       updateUI();
     }
     if(freeSpins===0){ bonusMode=false; document.body.classList.remove("bonus-mode"); }
-    // SIMPAN BALANCE KE FIRESTORE
-    const user = auth.currentUser;
+    const user = firebase.auth().currentUser;
     if(user) db.collection("users").doc(user.uid).set({balance:balance});
   },1800);
 }
@@ -212,6 +218,5 @@ createReels();
 updateUI();
 
 </script>
-
 </body>
 </html>
