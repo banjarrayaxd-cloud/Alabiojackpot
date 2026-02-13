@@ -99,7 +99,7 @@ const gameBox = document.getElementById("gameBox");
 function registerUser(){
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  auth.createUserWithEmailAndPassword(email,password)
+  firebase.auth().createUserWithEmailAndPassword(email,password)
     .then((cred)=>{
       alert("Register sukses: "+cred.user.email);
       initUser(cred.user);
