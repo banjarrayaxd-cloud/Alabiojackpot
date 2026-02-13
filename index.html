@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mahjong Style Slot Demo</title>
+<style>
+body {
+  margin:0;
+  background:linear-gradient(#0f2027,#203a43,#2c5364);
+  font-family:Arial, sans-serif;
+  color:white;
+  text-align:center;
+}
+
+h1 { margin:10px; }
+
+.topbar {
+  display:flex;
+  justify-content:space-around;
+  padding:10px;
+  font-size:18px;
+}
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(5,70px);
+  grid-template-rows:repeat(4,70px);
+  gap:5px;
+  justify-content:center;
+  margin:20px auto;
+}
+
+.cell {
+  background:gold;
+  color:black;
+  font-size:24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
+  transition:0.3s;
+}
+
+.win {
+  background:lime;
+  transform:scale(1.1);
+}
+
+.controls {
+  margin:20px;
+}
+
+button {
+  padding:10px 20px;
+  font-size:16px;
+  border:none;
+  border-radius:5px;
+  margin:5px;
+  cursor:pointer;
+}
+
+.spin {
+  background:red;
+  color:white;
+  font-size:20px;
+}
+
+</style>
+</head>
+<body>
+
+<h1>🎰 Mahjong Style Slot (Demo)</h1>
+
+<div class="topbar">
+  <div>Saldo: <span id="balance">1000</span></div>
+  <div>Bet: <span id="bet">10</span></div>
+  <div>Multiplier: x<span id="multi">1</span></div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="controls">
+  <button onclick="changeBet(-10)">- Bet</button>
+  <button onclick="changeBet(10)">+ Bet</button>
+  <button class="spin" onclick="spin()">SPIN</button>
+</div>
+
+<script>
+const symbols = ["🀄","🀅","🀆","🀇","🀈","🀉","🀊"];
+const gridEl = document.getElementById("grid");
+let balance = 1000;
+let bet = 10;
+let multiplier = 1;
+
+function updateUI(){
+  document.getElementById("balance").innerText = balance;
+  document.getElementById("bet").innerText = bet;
+  document.getElementById("multi").innerText = multiplier;
+}
+
+function randomSymbol(){
+  return symbols[Math.floor(Math.random()*symbols.length)];
+}
+
+function createGrid(){
+  gridEl.innerHTML="";
+  for(let i=0;i<20;i++){
+    const div=document.createElement("div");
+    div.classList.add("cell");
+    div.innerText=randomSymbol();
+    gridEl.appendChild(div);
+  }
+}
+
+function spin(){
+  if(balance<bet) return alert("Saldo habis!");
+  balance-=bet;
+  multiplier=1;
+  createGrid();
+  checkWin();
+  updateUI();
+}
+
+function checkWin(){
+  const cells=document.querySelectorAll(".cell");
+  let winCount=0;
+  let map={};
+
+  cells.forEach(cell=>{
+    map[cell.innerText]=(map[cell.innerText]||0)+1;
+  });
+
+  for(let key in map){
+    if(map[key]>=4){
+      winCount+=map[key];
+      cells.forEach(cell=>{
+        if(cell.innerText==key){
+          cell.classList.add("win");
+        }
+      });
+    }
+  }
+
+  if(winCount>0){
+    let winAmount=bet*multiplier*(winCount/4);
+    balance+=Math.floor(winAmount);
+    multiplier++;
+    setTimeout(()=>{
+      cascade();
+    },500);
+  }
+}
+
+function cascade(){
+  const cells=document.querySelectorAll(".cell");
+  cells.forEach(cell=>{
+    if(cell.classList.contains("win")){
+      cell.classList.remove("win");
+      cell.innerText=randomSymbol();
+    }
+  });
+  checkWin();
+  updateUI();
+}
+
+function changeBet(val){
+  bet+=val;
+  if(bet<10) bet=10;
+  updateUI();
+}
+
+createGrid();
+updateUI();
+</script>
+
+</body>
+</html>
