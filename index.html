@@ -89,10 +89,10 @@ h1{
 </head>
 <body>
 
-<h1>🎰 ALABIO Pangkalan Sari Slot/h1>
+<h1>🎰 Mahjong Style Level 5 (Demo)</h1>
 
 <div class="topbar">
-  <div>Idr: <span id="balance">1000</span></div>
+  <div>Saldo: <span id="balance">1000</span></div>
   <div>Bet: <span id="bet">10</span></div>
 </div>
 
@@ -117,13 +117,9 @@ const balanceEl=document.getElementById("balance");
 const betEl=document.getElementById("bet");
 const bigwinEl=document.getElementById("bigwin");
 
-function formatRupiah(angka){
-  return "Rp " + angka.toLocaleString("id-ID");
-}
-
 function updateUI(){
-balanceEl.innerText="Rp " + balance.toLocaleString("id-ID");
-}
+  balanceEl.innerText=balance;
+  betEl.innerText=bet;
 }
 
 function randomSymbol(){
