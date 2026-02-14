@@ -3,17 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ALABIO Pangkalan Sari Slot</title>
+<title>ALABIO Pangkalan Sari Slot + Live Chat</title>
 <style>
 body{
   margin:0;
+  font-family:Arial, sans-serif;
   background:radial-gradient(circle,#0f2027,#203a43,#2c5364);
-  font-family:Arial;
   color:white;
   text-align:center;
-  overflow:hidden;
+  overflow-x:hidden;
 }
 h1{margin:10px;color:gold;text-shadow:0 0 15px gold;}
+#login-form{margin-top:50px;}
+#login-form input{padding:8px;margin:5px;border-radius:5px;border:none;font-size:16px;}
+#login-form button{padding:8px 15px;margin:5px;border:none;border-radius:8px;background:#ff6600;color:white;cursor:pointer;}
+#gameBox{display:none; max-width:1000px; margin:0 auto;}
 .topbar{display:flex;justify-content:space-around;font-size:14px;padding:8px;}
 .slot{display:flex;justify-content:center;margin:20px auto;}
 .reel{width:70px;height:280px;overflow:hidden;border:2px solid gold;border-radius:10px;margin:0 5px;background:#111;position:relative;}
@@ -25,23 +29,29 @@ h1{margin:10px;color:gold;text-shadow:0 0 15px gold;}
 .spin:active{transform:scale(0.95);box-shadow:0 0 10px gold inset;}
 .bigwin{position:fixed;top:40%;left:50%;transform:translate(-50%,-50%);font-size:45px;font-weight:bold;color:gold;display:none;text-shadow:0 0 20px gold;}
 .bonus-mode{background: linear-gradient(45deg, gold, orange);}
-#login-form{margin-top:50px;}
-#login-form input{padding:8px;margin:5px;border-radius:5px;border:none;font-size:16px;}
-#login-form button{padding:8px 15px;margin:5px;border:none;border-radius:8px;background:#ff6600;color:white;cursor:pointer;}
-#history{max-height:150px;overflow-y:auto;margin-top:15px;background:rgba(255,255,255,0.1);padding:10px;border-radius:8px;text-align:left;}
 #logoutBtn{padding:5px 12px;margin-top:5px;border:none;border-radius:5px;background:#ff3333;color:white;cursor:pointer;}
+#history{max-height:150px;overflow-y:auto;margin-top:15px;background:rgba(255,255,255,0.1);padding:10px;border-radius:8px;text-align:left;}
+
+/* CHAT STYLE JODUL */
+#chatContainer{margin-top:20px;text-align:left;background:rgba(0,0,0,0.2);border-radius:10px;padding:10px;max-height:400px;overflow-y:auto;}
+.chat-bubble{padding:8px 12px;margin:5px 10px;border-radius:15px;display:inline-block;max-width:75%;position:relative;}
+.chat-other{background:#ddd;color:black; border-bottom-left-radius:0;}
+.chat-me{background:gold;color:black; border-bottom-right-radius:0; margin-left:auto;}
+.chat-time{font-size:10px; color:#333; margin-top:2px;}
+#chatInputContainer{display:flex;margin-top:5px;}
+#chatInputContainer input{flex:1;padding:8px;border-radius:20px;border:none;}
+#chatInputContainer button{padding:8px 15px;margin-left:5px;border:none;border-radius:20px;background:#ff6600;color:white;cursor:pointer;}
 </style>
 
-<!-- FIREBASE CDN COMPAT (versi 9.22.1) -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-<h1>🎰 ALABIO Pangkalan Sari Slot</h1>
+<h1>🎰 ALABIO Pangkalan Sari Slot + Live Chat</h1>
 
-<!-- LOGIN FORM -->
 <div id="login-form">
   <input type="email" id="email" placeholder="Email" required>
   <input type="password" id="password" placeholder="Password" required>
@@ -50,8 +60,7 @@ h1{margin:10px;color:gold;text-shadow:0 0 15px gold;}
   <button onclick="loginUser()">Login</button>
 </div>
 
-<!-- SLOT GAME -->
-<div id="gameBox" style="display:none;">
+<div id="gameBox">
   <button id="logoutBtn" onclick="logoutUser()">Logout</button>
   <div class="topbar">
     <div>Saldo: <span id="balance">0</span></div>
@@ -73,11 +82,18 @@ h1{margin:10px;color:gold;text-shadow:0 0 15px gold;}
   <h3>History Spin:</h3>
   <div id="history"></div>
 
+  <h3>Live Chat:</h3>
+  <div id="chatContainer"></div>
+  <div id="chatInputContainer">
+    <input type="text" id="chatInput" placeholder="Tulis pesan...">
+    <button onclick="sendMessage()">Kirim</button>
+  </div>
+
   <div class="bigwin" id="bigwin">🔥 BIG WIN 🔥</div>
 </div>
 
 <script>
-// ===== FIREBASE CONFIG =====
+// ===== FIREBASE =====
 const firebaseConfig = {
   apiKey: "AIzaSyClAxn0V3k-0taY76A4HN1qS4_o483ba8U",
   authDomain: "alabio-slot.firebaseapp.com",
@@ -90,7 +106,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// ====== SLOT VARIABLES ======
+// ===== SLOT VARIABLES =====
 const symbols=["🀄","🀅","🀆","🀇","🀈","🀉","💎"];
 let balance = 0;
 let bet = 1000;
@@ -104,6 +120,10 @@ const bigwinEl=document.getElementById("bigwin");
 const loginForm = document.getElementById("login-form");
 const gameBox = document.getElementById("gameBox");
 const historyDiv = document.getElementById("history");
+
+// ===== CHAT =====
+const chatContainer = document.getElementById("chatContainer");
+const chatInput = document.getElementById("chatInput");
 
 // ===== LOGIN/REGISTER =====
 function registerUser(){
@@ -132,7 +152,6 @@ function loginUser(){
     .catch(err=>alert("Gagal login: "+err.message));
 }
 
-// ===== LOGOUT =====
 function logoutUser(){
   auth.signOut().then(()=>{
     gameBox.style.display="none";
@@ -155,16 +174,16 @@ function initUser(user){
     }
     updateUI();
     loadHistory(user.uid);
+    loadChat();
   });
 }
 
-// ===== UI UPDATE =====
+// ===== UI =====
 function updateUI(){
   balanceEl.innerText = "Rp "+balance.toLocaleString("id-ID");
   betEl.innerText = "Rp "+bet.toLocaleString("id-ID");
 }
 
-// ===== BET =====
 function setBet(amount, btn){
   bet = amount;
   updateUI();
@@ -172,7 +191,7 @@ function setBet(amount, btn){
   btn.classList.add("selected");
 }
 
-// ===== SLOT FUNCTIONS =====
+// ===== SLOT =====
 function randomSymbol(){ return symbols[Math.floor(Math.random()*symbols.length)]; }
 
 function createReels(){
@@ -249,7 +268,7 @@ function spin(){
   },1800);
 }
 
-// ===== LOAD HISTORY =====
+// ===== HISTORY =====
 function loadHistory(uid){
   historyDiv.innerHTML="";
   db.collection("users").doc(uid).collection("history").orderBy("timestamp","desc").limit(20).get()
@@ -264,6 +283,36 @@ function loadHistory(uid){
     });
 }
 
+// ===== LIVE CHAT =====
+function sendMessage(){
+  const msg = chatInput.value.trim();
+  if(!msg) return;
+  const user = auth.currentUser;
+  if(!user) return alert("Login dulu untuk chat!");
+
+  db.collection("chat").add({
+    user: user.email,
+    message: msg,
+    timestamp: Date.now()
+  }).then(()=>chatInput.value="");
+}
+
+function loadChat(){
+  db.collection("chat").orderBy("timestamp","asc").onSnapshot(snapshot=>{
+    chatContainer.innerHTML="";
+    snapshot.forEach(doc=>{
+      const data = doc.data();
+      const time = new Date(data.timestamp).toLocaleTimeString();
+      const bubble = document.createElement("div");
+      bubble.className = data.user===auth.currentUser.email ? "chat-bubble chat-me" : "chat-bubble chat-other";
+      bubble.innerHTML = `${data.message}<div class="chat-time">${time}</div>`;
+      chatContainer.appendChild(bubble);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    });
+  });
+}
+
+// ===== INIT =====
 createReels();
 updateUI();
 </script>
