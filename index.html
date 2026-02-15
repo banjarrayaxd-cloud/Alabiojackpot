@@ -437,10 +437,6 @@ auth.onAuthStateChanged(user=>{
     registerBox.style.display = "none";
 
     gameBox.style.display = "block";
-    gameBox.style.visibility = "visible";
-    gameBox.style.opacity = "1";
-
-    document.getElementById("gameBox").removeAttribute("style");
 
     db.collection("users").doc(user.uid).get().then(doc=>{
       if(doc.exists){
