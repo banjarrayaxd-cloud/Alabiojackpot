@@ -11,25 +11,30 @@ body{
   background:radial-gradient(circle,#0f2027,#203a43,#2c5364);
   color:white;
   text-align:center;
+  overflow-x:hidden;
 }
-#registerBox, #loginBox{
+.box{
   max-width:500px;
   margin:30px auto;
   background:#2b0000;
   padding:20px;
   border-radius:12px;
 }
-.form-group{margin-bottom:12px;text-align:left;}
-.form-group label{display:block;margin-bottom:5px;font-size:14px;}
-.form-group input, .form-group select{width:100%;padding:10px;border:none;border-radius:8px;}
-button{padding:10px 15px;margin-top:10px;border:none;border-radius:8px;background:#ff6600;color:white;cursor:pointer;}
+.form-group{ margin-bottom:12px; text-align:left; }
+.form-group label{ display:block; margin-bottom:5px; font-size:14px; }
+.form-group input, .form-group select{ width:100%; padding:10px; border:none; border-radius:8px; }
+
+h1{margin:10px;color:gold;text-shadow:0 0 15px gold;}
+button{cursor:pointer;}
+
+/* GAME BOX */
 #gameBox{display:none; max-width:1000px; margin:0 auto;}
 .topbar{display:flex;justify-content:space-around;font-size:14px;padding:8px;}
 .slot{display:flex;justify-content:center;margin:20px auto;}
 .reel{width:70px;height:280px;overflow:hidden;border:2px solid gold;border-radius:10px;margin:0 5px;background:#111;position:relative;}
 .reel-inner{position:absolute;width:100%;}
 .symbol{height:70px;display:flex;align-items:center;justify-content:center;font-size:26px;background:linear-gradient(#ffd700,#b8860b);color:black;border-bottom:1px solid #333;}
-.controls button{padding:8px 15px;margin:5px;border:none;border-radius:8px;cursor:pointer;transition:0.1s;}
+.controls button{padding:8px 15px;margin:5px;border:none;border-radius:8px;transition:0.1s;}
 .controls button.bet.selected{background:orange; transform:scale(1.1);}
 .spin{background:red;color:white;font-size:18px;transition:0.1s;}
 .spin:active{transform:scale(0.95);box-shadow:0 0 10px gold inset;}
@@ -37,6 +42,8 @@ button{padding:10px 15px;margin-top:10px;border:none;border-radius:8px;backgroun
 .bonus-mode{background: linear-gradient(45deg, gold, orange);}
 #logoutBtn{padding:5px 12px;margin-top:5px;border:none;border-radius:5px;background:#ff3333;color:white;cursor:pointer;}
 #history{max-height:150px;overflow-y:auto;margin-top:15px;background:rgba(255,255,255,0.1);padding:10px;border-radius:8px;text-align:left;}
+
+/* CHAT */
 #chatContainer{margin-top:20px;text-align:left;background:rgba(0,0,0,0.2);border-radius:10px;padding:10px;max-height:400px;overflow-y:auto;}
 .chat-bubble{padding:8px 12px;margin:5px 10px;border-radius:15px;display:inline-block;max-width:75%;position:relative;}
 .chat-other{background:#ddd;color:black; border-bottom-left-radius:0;}
@@ -46,6 +53,7 @@ button{padding:10px 15px;margin-top:10px;border:none;border-radius:8px;backgroun
 #chatInputContainer input{flex:1;padding:8px;border-radius:20px;border:none;}
 #chatInputContainer button{padding:8px 15px;margin-left:5px;border:none;border-radius:20px;background:#ff6600;color:white;cursor:pointer;}
 </style>
+
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -53,105 +61,94 @@ button{padding:10px 15px;margin-top:10px;border:none;border-radius:8px;backgroun
 </head>
 <body>
 
-<h1>🎰 ALABIO Pangkalan Sari Slot</h1>
+<h1>🎰 Jack slot toto</h1>
 
-<!-- REGISTER -->
-<div id="registerBox">
-<h2>Register Akun</h2>
+<!-- REGISTER BOX -->
+<div id="registerBox" class="box">
+<h2>Register</h2>
 <div class="form-group">
-<label>Username *</label>
-<input type="text" id="regUsername" placeholder="Username">
-</div>
-<div class="form-group">
-<label>Password *</label>
-<input type="password" id="regPassword" placeholder="Password">
+  <label>Username *</label>
+  <input type="text" id="regUsername" placeholder="Username">
 </div>
 <div class="form-group">
-<label>Konfirmasi Password *</label>
-<input type="password" id="regConfirm" placeholder="Konfirmasi Password">
+  <label>Password *</label>
+  <input type="password" id="regPassword" placeholder="Password">
 </div>
 <div class="form-group">
-<label>Email *</label>
-<input type="email" id="regEmail" placeholder="Alamat email">
+  <label>Konfirmasi Password *</label>
+  <input type="password" id="regConfirm" placeholder="Konfirmasi Password">
 </div>
 <div class="form-group">
-<label>No. Telp/HP *</label>
-<div style="display:flex;">
-<span style="background:orange;padding:10px;border-radius:8px 0 0 8px;">+62</span>
-<input type="text" id="regPhone" placeholder="Nomor telepon" style="border-radius:0 8px 8px 0;">
-</div>
-</div>
-<h3>Bank</h3>
-<div class="form-group">
-<label>Nama Bank *</label>
-<select id="regBank">
-<option>BCA</option>
-<option>BRI</option>
-<option>BNI</option>
-<option>MANDIRI</option>
-<option>DANA</option>
-<option>OVO</option>
-<option>GOPAY</option>
-</select>
+  <label>Email *</label>
+  <input type="email" id="regEmail" placeholder="Alamat email anda">
 </div>
 <div class="form-group">
-<label>Nama Rekening *</label>
-<input type="text" id="regRekName">
+  <label>No. Telp/HP *</label>
+  <div style="display:flex;">
+    <span style="background:orange;padding:10px;border-radius:8px 0 0 8px;">+62</span>
+    <input type="text" id="regPhone" placeholder="Nomor telepon anda" style="border-radius:0 8px 8px 0;">
+  </div>
+</div>
+<h3>Pengaturan Bank</h3>
+<div class="form-group">
+  <label>Nama Bank *</label>
+  <select id="regBank">
+    <option>BCA</option><option>BRI</option><option>BNI</option>
+    <option>MANDIRI</option><option>DANA</option><option>OVO</option><option>GOPAY</option>
+  </select>
 </div>
 <div class="form-group">
-<label>Nomor Rekening *</label>
-<input type="text" id="regRekNo">
+  <label>Nama Rekening *</label>
+  <input type="text" id="regRekName">
 </div>
 <div class="form-group">
-<label>Captcha *</label>
-<div style="display:flex;align-items:center;">
-<span id="captchaText" style="background:#cde;padding:10px;font-weight:bold;"></span>
-<button type="button" onclick="generateCaptcha()" style="margin-left:5px;">↻</button>
+  <label>Nomor Rekening *</label>
+  <input type="text" id="regRekNo">
 </div>
-<input type="text" id="captchaInput" placeholder="Masukkan captcha">
+<div class="form-group">
+  <label>Captcha *</label>
+  <div style="display:flex;align-items:center;">
+    <span id="captchaText" style="background:#cde;padding:10px;font-weight:bold;"></span>
+    <button type="button" onclick="generateCaptcha()" style="margin-left:5px;">↻</button>
+  </div>
+  <input type="text" id="captchaInput" placeholder="Masukkan captcha">
 </div>
 <button onclick="submitRegister()">DAFTAR</button>
+<p style="margin-top:10px;">Sudah punya akun? <span style="color:orange; cursor:pointer;" onclick="showLogin()">Login disini</span></p>
 </div>
 
-<!-- LOGIN -->
-<div id="loginBox" style="display:none;">
+<!-- LOGIN BOX -->
+<div id="loginBox" class="box" style="display:none;">
 <h2>Login</h2>
 <div class="form-group">
-<label>Email</label>
-<input type="email" id="loginEmail">
+  <label>Email</label>
+  <input type="email" id="loginEmail" placeholder="Email">
 </div>
 <div class="form-group">
-<label>Password</label>
-<input type="password" id="loginPassword">
+  <label>Password</label>
+  <input type="password" id="loginPass" placeholder="Password">
 </div>
 <button onclick="loginUser()">LOGIN</button>
+<p style="margin-top:10px;">Belum punya akun? <span style="color:orange; cursor:pointer;" onclick="showRegister()">Register disini</span></p>
 </div>
 
-<!-- GAME -->
+<!-- GAME BOX -->
 <div id="gameBox">
-<div class="topbar">
-<span id="balance">Rp 0</span>
+<h2>🎰 Slot Game</h2>
+<p>Saldo: <span id="balance"></span> | Bet: <span id="bet"></span></p>
 <button id="logoutBtn" onclick="logoutUser()">Logout</button>
-</div>
-<div class="controls">
-<button class="bet" onclick="setBet(1000,this)">Rp 1.000</button>
-<button class="bet" onclick="setBet(5000,this)">Rp 5.000</button>
-<button class="bet" onclick="setBet(10000,this)">Rp 10.000</button>
-<button class="spin" onclick="spin()">SPIN 🎰</button>
-</div>
 <div class="slot" id="slot"></div>
+<button class="spin" onclick="spin()">SPIN</button>
+<div id="bigwin" class="bigwin">BIG WIN!</div>
 <div id="history"></div>
-
-<!-- CHAT -->
 <div id="chatContainer"></div>
 <div id="chatInputContainer">
-<input type="text" id="chatInput" placeholder="Ketik pesan...">
-<button onclick="sendMessage()">Kirim</button>
+  <input type="text" id="chatInput" placeholder="Tulis pesan...">
+  <button onclick="sendMessage()">KIRIM</button>
 </div>
 </div>
 
 <script>
-// ===== FIREBASE =====
 const firebaseConfig = {
   apiKey: "AIzaSyClAxn0V3k-0taY76A4HN1qS4_o483ba8U",
   authDomain: "alabio-slot.firebaseapp.com",
@@ -164,31 +161,33 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// ===== SLOT =====
+let balance = 0;
+let bet = 1000;
+let freeSpins = 0;
+let bonusMode = false;
 const symbols=["🀄","🀅","🀆","🀇","🀈","🀉","💎"];
-let balance=0, bet=1000, freeSpins=0, bonusMode=false;
 const slot=document.getElementById("slot");
 const balanceEl=document.getElementById("balance");
+const betEl=document.getElementById("bet");
+const bigwinEl=document.getElementById("bigwin");
 const registerBox=document.getElementById("registerBox");
 const loginBox=document.getElementById("loginBox");
 const gameBox=document.getElementById("gameBox");
 const historyDiv=document.getElementById("history");
 const chatContainer=document.getElementById("chatContainer");
 const chatInput=document.getElementById("chatInput");
-const bigwinEl=document.createElement("div");
-bigwinEl.className="bigwin"; bigwinEl.innerText="BIG WIN!"; document.body.appendChild(bigwinEl);
 
-// ===== CAPTCHA =====
 let currentCaptcha="";
 function generateCaptcha(){
   const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   currentCaptcha="";
-  for(let i=0;i<5;i++){currentCaptcha+=chars.charAt(Math.floor(Math.random()*chars.length));}
+  for(let i=0;i<5;i++){
+    currentCaptcha+=chars.charAt(Math.floor(Math.random()*chars.length));
+  }
   document.getElementById("captchaText").innerText=currentCaptcha;
 }
 window.onload=function(){ generateCaptcha(); createReels(); updateUI(); }
 
-// ===== REGISTER =====
 function submitRegister(){
   let username=document.getElementById("regUsername").value;
   let email=document.getElementById("regEmail").value;
@@ -198,51 +197,77 @@ function submitRegister(){
   let bank=document.getElementById("regBank").value;
   let rekName=document.getElementById("regRekName").value;
   let rekNo=document.getElementById("regRekNo").value;
-  let captchaInputVal=document.getElementById("captchaInput").value;
+  let captchaInput=document.getElementById("captchaInput").value;
 
-  if(!username||!email||!pass||!phone){ alert("Isi semua data wajib!"); return; }
-  if(pass!==confirm){ alert("Password tidak sama!"); return; }
-  if(captchaInputVal!==currentCaptcha){ alert("Captcha salah!"); generateCaptcha(); return; }
-
-  auth.createUserWithEmailAndPassword(email,pass).then(cred=>{
-    db.collection("users").doc(cred.user.uid).set({username,email,phone,bank,rekName,rekNo,balance:10000,createdAt:Date.now()});
-    alert("Register berhasil 🔥 Silakan login");
+  if(!username || !email || !pass || !phone){
+    alert("Isi semua data wajib!");
+    return;
+  }
+  if(pass!==confirm){
+    alert("Password tidak sama!");
+    return;
+  }
+  if(captchaInput!==currentCaptcha){
+    alert("Captcha salah!");
     generateCaptcha();
+    return;
+  }
+
+  auth.createUserWithEmailAndPassword(email, pass)
+  .then(cred=>{
+    db.collection("users").doc(cred.user.uid).set({
+      username,email,phone,bank,rekName,rekNo,balance:10000,createdAt:Date.now()
+    });
+    alert("Register berhasil 🔥 Silakan login");
+    registerBox.style.display="none";
     loginBox.style.display="block";
-  }).catch(err=>alert("Gagal register: "+err.message));
+    generateCaptcha();
+  })
+  .catch(err=>{ alert("Gagal register: "+err.message); });
 }
 
-// ===== LOGIN =====
+function showLogin(){ registerBox.style.display="none"; loginBox.style.display="block"; }
+function showRegister(){ registerBox.style.display="block"; loginBox.style.display="none"; }
+
 function loginUser(){
-  let email=document.getElementById("loginEmail").value;
-  let pass=document.getElementById("loginPassword").value;
-  if(!email||!pass){ alert("Isi email & password!"); return; }
-
-  auth.signInWithEmailAndPassword(email,pass).then(cred=>{
+  const email=document.getElementById("loginEmail").value;
+  const pass=document.getElementById("loginPass").value;
+  if(!email || !pass){ alert("Isi email & password!"); return; }
+  auth.signInWithEmailAndPassword(email, pass)
+  .then(cred=>{
     alert("Login sukses: "+cred.user.email);
-    registerBox.style.display="none"; loginBox.style.display="none"; gameBox.style.display="block";
+    loginBox.style.display="none";
+    gameBox.style.display="block";
     initUser(cred.user);
-  }).catch(err=>alert("Gagal login: "+err.message));
+  })
+  .catch(err=>alert("Gagal login: "+err.message));
 }
 
-// ===== LOGOUT =====
-function logoutUser(){ auth.signOut().then(()=>{ gameBox.style.display="none"; loginBox.style.display="block"; alert("Logout sukses!"); }); }
+function logoutUser(){ auth.signOut().then(()=>{ gameBox.style.display="none"; loginBox.style.display="block"; }); }
 
-// ===== INIT USER =====
 function initUser(user){
-  db.collection("users").doc(user.uid).get().then(doc=>{
-    if(doc.exists){ balance=doc.data().balance; updateUI(); }
-    loadHistory(user.uid); loadChat();
+  const userDoc=db.collection("users").doc(user.uid);
+  userDoc.get().then(doc=>{
+    if(doc.exists) balance=doc.data().balance; else { userDoc.set({balance:1000000}); balance=1000000; }
+    updateUI();
+    loadHistory(user.uid);
+    loadChat();
   });
 }
 
-// ===== UI =====
-function updateUI(){ balanceEl.innerText="Rp "+balance.toLocaleString("id-ID"); }
-function setBet(amount,btn){ bet=amount; document.querySelectorAll(".controls button.bet").forEach(b=>b.classList.remove("selected")); btn.classList.add("selected"); updateUI(); }
+function updateUI(){ balanceEl.innerText="Rp "+balance.toLocaleString("id-ID"); betEl.innerText="Rp "+bet.toLocaleString("id-ID"); }
 
-// ===== SLOT =====
 function randomSymbol(){ return symbols[Math.floor(Math.random()*symbols.length)]; }
-function createReels(){ slot.innerHTML=""; for(let i=0;i<5;i++){ const reel=document.createElement("div"); reel.className="reel"; const inner=document.createElement("div"); inner.className="reel-inner"; for(let j=0;j<10;j++){ const sym=document.createElement("div"); sym.className="symbol"; sym.innerText=randomSymbol(); inner.appendChild(sym); } reel.appendChild(inner); slot.appendChild(reel); } }
+function createReels(){
+  slot.innerHTML="";
+  for(let i=0;i<5;i++){
+    const reel=document.createElement("div"); reel.className="reel";
+    const inner=document.createElement("div"); inner.className="reel-inner";
+    for(let j=0;j<10;j++){ const sym=document.createElement("div"); sym.className="symbol"; sym.innerText=randomSymbol(); inner.appendChild(sym); }
+    reel.appendChild(inner); slot.appendChild(reel);
+  }
+}
+
 function spin(){
   if(balance<bet && freeSpins===0) return alert("Saldo habis!");
   if(freeSpins===0) balance-=bet; else {freeSpins--; alert("🎁 FREE SPIN! Sisa: "+freeSpins);}
@@ -254,53 +279,50 @@ function spin(){
     setTimeout(()=>{ reel.style.transition="top 1s ease-out"; reel.style.top="-350px"; }, index*200);
     setTimeout(()=>{
       reel.style.transition="none"; reel.style.top="0px"; reel.innerHTML="";
-      for(let j=0;j<10;j++){
-        const sym=document.createElement("div");
-        sym.className="symbol"; sym.innerText=randomSymbol(); reel.appendChild(sym);
-        if(sym.innerText==="💎") crownCount++;
-      }
+      for(let j=0;j<10;j++){ const sym=document.createElement("div"); sym.className="symbol"; sym.innerText=randomSymbol(); reel.appendChild(sym); if(sym.innerText==="💎") crownCount++; }
     },1200+index*200);
   });
   setTimeout(()=>{
     let winAmount=0;
-    if(crownCount>=3){ freeSpins+=5; bonusMode=true; document.body.classList.add("bonus-mode"); alert("🔥 FREE SPIN MODE!"); }
+    if(crownCount>=3){ freeSpins+=5; bonusMode=true; document.body.classList.add("bonus-mode"); alert("🔥 FREE SPIN MODE AKTIF! 5 SPIN + WIN x10"); }
     let winChance=Math.random();
     if(winChance>0.7){ let multiplier=bonusMode?10:5; winAmount=bet*multiplier; balance+=winAmount; bigwinEl.style.display="block"; setTimeout(()=>bigwinEl.style.display="none",1500); updateUI(); }
     if(freeSpins===0){ bonusMode=false; document.body.classList.remove("bonus-mode"); }
     const user=auth.currentUser;
     if(user){
       const userRef=db.collection("users").doc(user.uid);
-      userRef.set({balance:balance},{merge:true});
-      const spinData={timestamp:Date.now(), bet:bet, win:winAmount};
+      userRef.set({balance:balance});
+      const spinData={timestamp:Date.now(),bet:bet,win:winAmount};
       userRef.collection("history").add(spinData).then(()=>loadHistory(user.uid));
     }
   },1800);
 }
 
-// ===== HISTORY =====
 function loadHistory(uid){
   historyDiv.innerHTML="";
   db.collection("users").doc(uid).collection("history").orderBy("timestamp","desc").limit(20).get()
   .then(snapshot=>{ snapshot.forEach(doc=>{ const data=doc.data(); const time=new Date(data.timestamp).toLocaleTimeString(); const entry=document.createElement("div"); entry.innerText=`[${time}] Bet: ${data.bet} | Win: ${data.win}`; historyDiv.appendChild(entry); }); });
 }
 
-// ===== CHAT =====
 function sendMessage(){
   const msg=chatInput.value.trim();
   if(!msg) return;
   const user=auth.currentUser;
-  if(!user){ alert("Login dulu!"); return; }
+  if(!user) return alert("Login dulu untuk chat!");
   db.collection("chat").add({user:user.email,message:msg,timestamp:Date.now()}).then(()=>chatInput.value="");
 }
+
 function loadChat(){
   db.collection("chat").orderBy("timestamp","asc").onSnapshot(snapshot=>{
     chatContainer.innerHTML="";
     snapshot.forEach(doc=>{
-      const data=doc.data(); const time=new Date(data.timestamp).toLocaleTimeString();
+      const data=doc.data();
+      const time=new Date(data.timestamp).toLocaleTimeString();
       const bubble=document.createElement("div");
-      bubble.className = data.user===auth.currentUser.email ? "chat-bubble chat-me":"chat-bubble chat-other";
+      bubble.className=data.user===auth.currentUser.email ? "chat-bubble chat-me" : "chat-bubble chat-other";
       bubble.innerHTML=`${data.message}<div class="chat-time">${time}</div>`;
-      chatContainer.appendChild(bubble); chatContainer.scrollTop=chatContainer.scrollHeight;
+      chatContainer.appendChild(bubble);
+      chatContainer.scrollTop=chatContainer.scrollHeight;
     });
   });
 }
