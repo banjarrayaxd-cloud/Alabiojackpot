@@ -430,10 +430,17 @@ function submitRegister(){
 // ===== AUTO LOGIN =====
 auth.onAuthStateChanged(user=>{
   if(user){
+
     alert("USER LOGIN TERDETEKSI");
+
     loginForm.style.display = "none";
     registerBox.style.display = "none";
+
     gameBox.style.display = "block";
+    gameBox.style.visibility = "visible";
+    gameBox.style.opacity = "1";
+
+    document.getElementById("gameBox").removeAttribute("style");
 
     db.collection("users").doc(user.uid).get().then(doc=>{
       if(doc.exists){
@@ -450,7 +457,6 @@ auth.onAuthStateChanged(user=>{
     gameBox.style.display = "none";
   }
 });
-                       }
 // ===== INIT =====
 createReels();
 updateUI();
