@@ -430,6 +430,7 @@ function submitRegister(){
 // ===== AUTO LOGIN =====
 auth.onAuthStateChanged(user=>{
   if(user){
+    alert("USER LOGIN TERDETEKSI");
     loginForm.style.display = "none";
     registerBox.style.display = "none";
     gameBox.style.display = "block";
