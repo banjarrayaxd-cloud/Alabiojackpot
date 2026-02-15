@@ -29,8 +29,7 @@ body{
   margin-bottom:5px;
   font-size:14px;
 }
-.form-group input,
-.form-group select{
+.form-group input, .form-group select{
   width:100%;
   padding:10px;
   border:none;
@@ -51,8 +50,6 @@ h1{margin:10px;color:gold;text-shadow:0 0 15px gold;}
 .bonus-mode{background: linear-gradient(45deg, gold, orange);}
 #logoutBtn{padding:5px 12px;margin-top:5px;border:none;border-radius:5px;background:#ff3333;color:white;cursor:pointer;}
 #history{max-height:150px;overflow-y:auto;margin-top:15px;background:rgba(255,255,255,0.1);padding:10px;border-radius:8px;text-align:left;}
-
-/* CHAT STYLE */
 #chatContainer{margin-top:20px;text-align:left;background:rgba(0,0,0,0.2);border-radius:10px;padding:10px;max-height:400px;overflow-y:auto;}
 .chat-bubble{padding:8px 12px;margin:5px 10px;border-radius:15px;display:inline-block;max-width:75%;position:relative;}
 .chat-other{background:#ddd;color:black; border-bottom-left-radius:0;}
@@ -72,21 +69,7 @@ h1{margin:10px;color:gold;text-shadow:0 0 15px gold;}
 
 <h1>🎰 Jack slot toto</h1>
 
-<!-- LOGIN FORM -->
-<div id="loginBox">
-<h2>Login</h2>
-<div class="form-group">
-  <label>Email</label>
-  <input type="email" id="loginEmail" placeholder="Email">
-</div>
-<div class="form-group">
-  <label>Password</label>
-  <input type="password" id="loginPassword" placeholder="Password">
-</div>
-<button onclick="loginUser()">Login</button>
-</div>
-
-<!-- REGISTER FORM -->
+<!-- REGISTER BOX -->
 <div id="registerBox">
 <h2>Register</h2>
 <div class="form-group">
@@ -112,7 +95,6 @@ h1{margin:10px;color:gold;text-shadow:0 0 15px gold;}
     <input type="text" id="regPhone" placeholder="Nomor telepon anda" style="border-radius:0 8px 8px 0;">
   </div>
 </div>
-
 <h3>Pengaturan Bank</h3>
 <div class="form-group">
   <label>Nama Bank *</label>
@@ -142,27 +124,28 @@ h1{margin:10px;color:gold;text-shadow:0 0 15px gold;}
   </div>
   <input type="text" id="captchaInput" placeholder="Masukkan captcha">
 </div>
-<button onclick="submitRegister()">DAFTAR</button>
+<button onclick="submitRegister()" style="margin-top:15px;">DAFTAR</button>
 </div>
 
-<!-- GAME SLOT -->
+<!-- GAME BOX -->
 <div id="gameBox">
-  <div class="topbar">
-    <span id="balance">Rp 0</span>
-    <span id="bet">Rp 0</span>
-    <button id="logoutBtn" onclick="logoutUser()">Logout</button>
-  </div>
-  <div id="slot" class="slot"></div>
-  <button class="spin" onclick="spin()">SPIN</button>
-  <div id="bigwin" class="bigwin">BIG WIN!</div>
-  <div id="history"></div>
+<div class="topbar">
+  <div id="balance">Rp 0</div>
+  <div id="bet">Rp 0</div>
+  <button id="logoutBtn" onclick="logoutUser()">Logout</button>
+</div>
+<div class="slot" id="slot"></div>
+<button class="spin" onclick="spin()">SPIN</button>
+<div class="bigwin" id="bigwin">BIG WIN!</div>
+<h3>History</h3>
+<div id="history"></div>
 
-  <!-- CHAT -->
-  <div id="chatContainer"></div>
-  <div id="chatInputContainer">
-    <input type="text" id="chatInput" placeholder="Ketik pesan...">
-    <button onclick="sendMessage()">Kirim</button>
-  </div>
+<h3>Live Chat</h3>
+<div id="chatContainer"></div>
+<div id="chatInputContainer">
+  <input type="text" id="chatInput" placeholder="Ketik pesan...">
+  <button onclick="sendMessage()">Kirim</button>
+</div>
 </div>
 
 <script>
@@ -185,50 +168,30 @@ let balance = 0;
 let bet = 1000;
 let freeSpins = 0;
 let bonusMode = false;
+
 const slot=document.getElementById("slot");
 const balanceEl=document.getElementById("balance");
 const betEl=document.getElementById("bet");
 const bigwinEl=document.getElementById("bigwin");
 const gameBox = document.getElementById("gameBox");
 const registerBox = document.getElementById("registerBox");
-const loginBox = document.getElementById("loginBox");
 const historyDiv = document.getElementById("history");
 const chatContainer = document.getElementById("chatContainer");
 const chatInput = document.getElementById("chatInput");
 
-// ===== LOGIN =====
-function loginUser(){
-  const email = document.getElementById("loginEmail").value;
-  const pass = document.getElementById("loginPassword").value;
-  if(!email || !pass){ alert("Isi email & password!"); return; }
-  auth.signInWithEmailAndPassword(email, pass)
-      .then(cred=>{
-          alert("Login sukses: "+cred.user.email);
-          initUser(cred.user);
-      })
-      .catch(err=>alert("Gagal login: "+err.message));
-}
-
-function logoutUser(){
-  auth.signOut().then(()=>{
-    gameBox.style.display="none";
-    loginBox.style.display="block";
-    registerBox.style.display="block";
-    alert("Logout sukses!");
-  });
-}
-
-// ===== REGISTER =====
+// ===== CAPTCHA =====
 let currentCaptcha = "";
 function generateCaptcha(){
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   currentCaptcha = "";
   for(let i=0;i<5;i++){
-      currentCaptcha += chars.charAt(Math.floor(Math.random()*chars.length));
+    currentCaptcha += chars.charAt(Math.floor(Math.random()*chars.length));
   }
   document.getElementById("captchaText").innerText = currentCaptcha;
 }
+window.onload = function(){ generateCaptcha(); createReels(); updateUI(); };
 
+// ===== REGISTER =====
 function submitRegister(){
   const username = document.getElementById("regUsername").value;
   const email = document.getElementById("regEmail").value;
@@ -250,78 +213,111 @@ function submitRegister(){
               username, email, phone, bank, rekName, rekNo, balance:10000, createdAt:Date.now()
           });
           alert("Register Berhasil 🔥 Saldo Awal 10.000");
+          window.justLoggedIn = true;
           generateCaptcha();
       })
       .catch(err=>{ alert("Gagal register: "+err.message); });
 }
 
+// ===== LOGIN =====
+function loginUser(){
+  const email = document.getElementById("loginEmail").value;
+  const pass = document.getElementById("loginPassword").value;
+  if(!email || !pass){ alert("Isi email & password!"); return; }
+  auth.signInWithEmailAndPassword(email, pass)
+      .then(cred=>{
+          alert("Login sukses: "+cred.user.email);
+          window.justLoggedIn = true;
+      })
+      .catch(err=>alert("Gagal login: "+err.message));
+}
+
 // ===== AUTO LOGIN =====
-auth.onAuthStateChanged(user=>{
-  if(user){
+auth.onAuthStateChanged(user => {
+  if(user && window.justLoggedIn){
       registerBox.style.display = "none";
-      loginBox.style.display = "none";
       gameBox.style.display = "block";
       db.collection("users").doc(user.uid).get().then(doc=>{
-          if(doc.exists){
-              balance = doc.data().balance;
-              updateUI();
-          }
+          if(doc.exists){ balance = doc.data().balance; updateUI(); }
       });
       loadChat();
+      window.justLoggedIn = false;
   } else {
       registerBox.style.display = "block";
-      loginBox.style.display = "block";
       gameBox.style.display = "none";
   }
 });
 
-// ===== SLOT =====
+// ===== UI =====
 function updateUI(){
   balanceEl.innerText = "Rp "+balance.toLocaleString("id-ID");
   betEl.innerText = "Rp "+bet.toLocaleString("id-ID");
 }
+
+// ===== SLOT =====
+function randomSymbol(){ return symbols[Math.floor(Math.random()*symbols.length)]; }
 function createReels(){
   slot.innerHTML="";
   for(let i=0;i<5;i++){
-    const reel=document.createElement("div"); reel.className="reel";
-    const inner=document.createElement("div"); inner.className="reel-inner";
+    const reel=document.createElement("div");
+    reel.className="reel";
+    const inner=document.createElement("div");
+    inner.className="reel-inner";
     for(let j=0;j<10;j++){
-      const sym=document.createElement("div"); sym.className="symbol";
-      sym.innerText=symbols[Math.floor(Math.random()*symbols.length)];
+      const sym=document.createElement("div");
+      sym.className="symbol";
+      sym.innerText=randomSymbol();
       inner.appendChild(sym);
     }
-    reel.appendChild(inner); slot.appendChild(reel);
+    reel.appendChild(inner);
+    slot.appendChild(reel);
   }
 }
 function spin(){
   if(balance<bet && freeSpins===0) return alert("Saldo habis!");
   if(freeSpins===0) balance-=bet; else {freeSpins--; alert("🎁 FREE SPIN! Sisa: "+freeSpins);}
   updateUI();
-  const reels=document.querySelectorAll(".reel-inner"); let crownCount=0;
+
+  const reels=document.querySelectorAll(".reel-inner");
+  let crownCount=0;
   reels.forEach((reel,index)=>{
     reel.style.transition="none"; reel.style.top="0px";
     setTimeout(()=>{ reel.style.transition="top 1s ease-out"; reel.style.top="-350px"; }, index*200);
     setTimeout(()=>{
       reel.style.transition="none"; reel.style.top="0px"; reel.innerHTML="";
       for(let j=0;j<10;j++){
-        const sym=document.createElement("div"); sym.className="symbol";
-        sym.innerText = symbols[Math.floor(Math.random()*symbols.length)];
+        const sym=document.createElement("div");
+        sym.className="symbol";
+        sym.innerText=randomSymbol();
         reel.appendChild(sym);
         if(sym.innerText==="💎") crownCount++;
       }
     },1200+index*200);
   });
+
   setTimeout(()=>{
     let winAmount = 0;
-    if(crownCount>=3){ freeSpins+=5; bonusMode=true; document.body.classList.add("bonus-mode"); alert("🔥 FREE SPIN MODE AKTIF! 5 SPIN + WIN x10"); }
+    if(crownCount>=3){ 
+      freeSpins+=5; 
+      bonusMode=true; 
+      document.body.classList.add("bonus-mode"); 
+      alert("🔥 FREE SPIN MODE AKTIF! 5 SPIN + WIN x10"); 
+    }
     let winChance = Math.random();
-    if(winChance>0.7){ let multiplier = bonusMode?10:5; winAmount=bet*multiplier; balance+=winAmount; bigwinEl.style.display="block"; setTimeout(()=>bigwinEl.style.display="none",1500); updateUI(); }
+    if(winChance>0.7){
+      let multiplier = bonusMode?10:5;
+      winAmount = bet*multiplier;
+      balance+=winAmount;
+      bigwinEl.style.display="block";
+      setTimeout(()=>bigwinEl.style.display="none",1500);
+      updateUI();
+    }
     if(freeSpins===0){ bonusMode=false; document.body.classList.remove("bonus-mode"); }
     const user = auth.currentUser;
     if(user){
       const userRef = db.collection("users").doc(user.uid);
       userRef.set({balance:balance});
-      const spinData={timestamp:Date.now(), bet:bet, win:winAmount};
+      const spinData = {timestamp:Date.now(), bet:bet, win:winAmount};
       userRef.collection("history").add(spinData).then(()=>loadHistory(user.uid));
     }
   },1800);
@@ -331,13 +327,15 @@ function spin(){
 function loadHistory(uid){
   historyDiv.innerHTML="";
   db.collection("users").doc(uid).collection("history").orderBy("timestamp","desc").limit(20).get()
-    .then(snapshot=>{ snapshot.forEach(doc=>{
+    .then(snapshot=>{
+      snapshot.forEach(doc=>{
         const data = doc.data();
         const time = new Date(data.timestamp).toLocaleTimeString();
         const entry = document.createElement("div");
         entry.innerText=`[${time}] Bet: ${data.bet} | Win: ${data.win}`;
         historyDiv.appendChild(entry);
-    });});
+      });
+    });
 }
 
 // ===== CHAT =====
@@ -346,8 +344,11 @@ function sendMessage(){
   if(!msg) return;
   const user = auth.currentUser;
   if(!user) return alert("Login dulu untuk chat!");
-  db.collection("chat").add({user:user.email, message:msg, timestamp:Date.now()})
-    .then(()=>chatInput.value="");
+  db.collection("chat").add({
+    user: user.email,
+    message: msg,
+    timestamp: Date.now()
+  }).then(()=>chatInput.value="");
 }
 function loadChat(){
   db.collection("chat").orderBy("timestamp","asc").onSnapshot(snapshot=>{
@@ -364,11 +365,15 @@ function loadChat(){
   });
 }
 
-// INIT
-createReels();
-updateUI();
-generateCaptcha();
-
+// ===== LOGOUT =====
+function logoutUser(){
+  auth.signOut().then(()=>{
+    gameBox.style.display="none";
+    registerBox.style.display="block";
+    alert("Logout sukses!");
+  });
+}
 </script>
+
 </body>
 </html>
