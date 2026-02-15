@@ -424,6 +424,27 @@ function submitRegister(){
     .catch(err=>{
       alert("Gagal register: "+err.message);
     });
+  auth.onAuthStateChanged(user=>{
+  if(user){
+    // kalau sudah login
+    loginForm.style.display = "none";
+    gameBox.style.display = "block";
+
+    // ambil data user dari Firestore
+    db.collection("users").doc(user.uid).get().then(doc=>{
+      if(doc.exists){
+        balance = doc.data().balance;
+        updateUI();
+      }
+    });
+
+    loadChat();
+  } else {
+    // kalau logout
+    loginForm.style.display = "block";
+    gameBox.style.display = "none";
+  }
+});
 
                        }
 // ===== INIT =====
