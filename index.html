@@ -430,14 +430,11 @@ function submitRegister(){
 
 
 // ===== AUTO LOGIN =====
+// ===== AUTO LOGIN =====
 auth.onAuthStateChanged(user=>{
   if(user){
 
-    alert("USER LOGIN TERDETEKSI");
-
-    loginForm.style.display = "none";
     registerBox.style.display = "none";
-
     gameBox.style.display = "block";
 
     db.collection("users").doc(user.uid).get().then(doc=>{
@@ -451,19 +448,12 @@ auth.onAuthStateChanged(user=>{
 
   } else {
 
-  loginForm.style.display = "block";
-  registerBox.style.display = "block";
-  gameBox.style.display = "none";
+    registerBox.style.display = "block";
+    gameBox.style.display = "none";
 
-  if(window.recaptchaVerifier){
-    window.recaptchaVerifier.clear();
   }
-
-  window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container');
-  window.recaptchaVerifier.render();
-
-      }
-  });
+});
+  
 // ===== INIT =====
 createReels();
 updateUI();
