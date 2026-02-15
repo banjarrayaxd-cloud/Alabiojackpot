@@ -451,6 +451,10 @@ auth.onAuthStateChanged(user=>{
     loginForm.style.display = "block";
     registerBox.style.display = "block";
     gameBox.style.display = "none";
+    if(!window.recaptchaVerifier){
+  window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container');
+  window.recaptchaVerifier.render();
+    }
   }
 });
 // ===== INIT =====
