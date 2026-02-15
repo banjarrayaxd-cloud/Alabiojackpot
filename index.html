@@ -430,9 +430,10 @@ function submitRegister(){
 
 
 // ===== AUTO LOGIN =====
-// ===== AUTO LOGIN =====
 auth.onAuthStateChanged(user=>{
   if(user){
+
+    alert("USER LOGIN TERDETEKSI");
 
     registerBox.style.display = "none";
     gameBox.style.display = "block";
@@ -453,7 +454,6 @@ auth.onAuthStateChanged(user=>{
 
   }
 });
-  
 // ===== INIT =====
 createReels();
 updateUI();
