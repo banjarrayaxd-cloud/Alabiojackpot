@@ -365,6 +365,32 @@ function loadChat(){
     });
   });
 }
+let currentCaptcha = "";
+
+function generateCaptcha(){
+  currentCaptcha = Math.random().toString(36).substring(2,7);
+  document.getElementById("captchaText").innerText = currentCaptcha;
+}
+generateCaptcha();
+
+function submitRegister(){
+  let pass = document.getElementById("regPassword").value;
+  let confirm = document.getElementById("regConfirm").value;
+  let captchaInput = document.getElementById("captchaInput").value;
+
+  if(pass !== confirm){
+    alert("Password tidak sama!");
+    return;
+  }
+
+  if(captchaInput !== currentCaptcha){
+    alert("Captcha salah!");
+    generateCaptcha();
+    return;
+  }
+
+  alert("Register Berhasil 🔥 (nanti bisa kita sambungkan ke Firebase)");
+  }  
 
 // ===== INIT =====
 createReels();
