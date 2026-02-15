@@ -453,11 +453,9 @@ function submitRegister(){
 // ===== AUTO LOGIN =====
 auth.onAuthStateChanged(user=>{
   if(user){
-
-    alert("USER LOGIN TERDETEKSI");
-
-    registerBox.style.display = "none";
+    // hanya tampilkan gameBox kalau user sudah login sebelumnya
     gameBox.style.display = "block";
+    registerBox.style.display = "none";
 
     db.collection("users").doc(user.uid).get().then(doc=>{
       if(doc.exists){
@@ -467,12 +465,10 @@ auth.onAuthStateChanged(user=>{
     });
 
     loadChat();
-
   } else {
-
+    // biarkan registerBox tetap muncul
     registerBox.style.display = "block";
     gameBox.style.display = "none";
-
   }
 });
 // ===== INIT =====
