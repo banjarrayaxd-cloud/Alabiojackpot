@@ -133,6 +133,12 @@ button{padding:10px 15px;margin-top:10px;border:none;border-radius:8px;backgroun
 <span id="balance">Rp 0</span>
 <button id="logoutBtn" onclick="logoutUser()">Logout</button>
 </div>
+<div class="controls">
+<button class="bet" onclick="setBet(1000,this)">Rp 1.000</button>
+<button class="bet" onclick="setBet(5000,this)">Rp 5.000</button>
+<button class="bet" onclick="setBet(10000,this)">Rp 10.000</button>
+<button class="spin" onclick="spin()">SPIN 🎰</button>
+</div>
 <div class="slot" id="slot"></div>
 <div id="history"></div>
 
@@ -158,35 +164,26 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// ===== SLOT VARIABLES =====
+// ===== SLOT =====
 const symbols=["🀄","🀅","🀆","🀇","🀈","🀉","💎"];
-let balance = 0;
-let bet = 1000;
-let freeSpins = 0;
-let bonusMode = false;
-
+let balance=0, bet=1000, freeSpins=0, bonusMode=false;
 const slot=document.getElementById("slot");
 const balanceEl=document.getElementById("balance");
-const bigwinEl=document.createElement("div");
-bigwinEl.className="bigwin";
-bigwinEl.innerText="BIG WIN!";
-document.body.appendChild(bigwinEl);
-
 const registerBox=document.getElementById("registerBox");
 const loginBox=document.getElementById("loginBox");
 const gameBox=document.getElementById("gameBox");
 const historyDiv=document.getElementById("history");
 const chatContainer=document.getElementById("chatContainer");
 const chatInput=document.getElementById("chatInput");
+const bigwinEl=document.createElement("div");
+bigwinEl.className="bigwin"; bigwinEl.innerText="BIG WIN!"; document.body.appendChild(bigwinEl);
 
 // ===== CAPTCHA =====
 let currentCaptcha="";
 function generateCaptcha(){
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  currentCaptcha = "";
-  for(let i=0;i<5;i++){
-    currentCaptcha += chars.charAt(Math.floor(Math.random()*chars.length));
-  }
+  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  currentCaptcha="";
+  for(let i=0;i<5;i++){currentCaptcha+=chars.charAt(Math.floor(Math.random()*chars.length));}
   document.getElementById("captchaText").innerText=currentCaptcha;
 }
 window.onload=function(){ generateCaptcha(); createReels(); updateUI(); }
@@ -208,12 +205,9 @@ function submitRegister(){
   if(captchaInputVal!==currentCaptcha){ alert("Captcha salah!"); generateCaptcha(); return; }
 
   auth.createUserWithEmailAndPassword(email,pass).then(cred=>{
-    db.collection("users").doc(cred.user.uid).set({
-      username,email,phone,bank,rekName,rekNo,balance:10000,createdAt:Date.now()
-    });
+    db.collection("users").doc(cred.user.uid).set({username,email,phone,bank,rekName,rekNo,balance:10000,createdAt:Date.now()});
     alert("Register berhasil 🔥 Silakan login");
     generateCaptcha();
-    // tetap tampil register, jangan auto login
     loginBox.style.display="block";
   }).catch(err=>alert("Gagal register: "+err.message));
 }
@@ -226,68 +220,68 @@ function loginUser(){
 
   auth.signInWithEmailAndPassword(email,pass).then(cred=>{
     alert("Login sukses: "+cred.user.email);
-    registerBox.style.display="none";
-    loginBox.style.display="none";
-    gameBox.style.display="block";
+    registerBox.style.display="none"; loginBox.style.display="none"; gameBox.style.display="block";
     initUser(cred.user);
   }).catch(err=>alert("Gagal login: "+err.message));
 }
 
 // ===== LOGOUT =====
-function logoutUser(){
-  auth.signOut().then(()=>{
-    gameBox.style.display="none";
-    loginBox.style.display="block";
-    alert("Logout sukses!");
-  });
-}
+function logoutUser(){ auth.signOut().then(()=>{ gameBox.style.display="none"; loginBox.style.display="block"; alert("Logout sukses!"); }); }
 
 // ===== INIT USER =====
 function initUser(user){
   db.collection("users").doc(user.uid).get().then(doc=>{
     if(doc.exists){ balance=doc.data().balance; updateUI(); }
-    loadHistory(user.uid);
-    loadChat();
+    loadHistory(user.uid); loadChat();
   });
 }
 
 // ===== UI =====
 function updateUI(){ balanceEl.innerText="Rp "+balance.toLocaleString("id-ID"); }
+function setBet(amount,btn){ bet=amount; document.querySelectorAll(".controls button.bet").forEach(b=>b.classList.remove("selected")); btn.classList.add("selected"); updateUI(); }
 
 // ===== SLOT =====
 function randomSymbol(){ return symbols[Math.floor(Math.random()*symbols.length)]; }
-
-function createReels(){
-  slot.innerHTML="";
-  for(let i=0;i<5;i++){
-    const reel=document.createElement("div");
-    reel.className="reel";
-    const inner=document.createElement("div");
-    inner.className="reel-inner";
-    for(let j=0;j<10;j++){
-      const sym=document.createElement("div");
-      sym.className="symbol";
-      sym.innerText=randomSymbol();
-      inner.appendChild(sym);
+function createReels(){ slot.innerHTML=""; for(let i=0;i<5;i++){ const reel=document.createElement("div"); reel.className="reel"; const inner=document.createElement("div"); inner.className="reel-inner"; for(let j=0;j<10;j++){ const sym=document.createElement("div"); sym.className="symbol"; sym.innerText=randomSymbol(); inner.appendChild(sym); } reel.appendChild(inner); slot.appendChild(reel); } }
+function spin(){
+  if(balance<bet && freeSpins===0) return alert("Saldo habis!");
+  if(freeSpins===0) balance-=bet; else {freeSpins--; alert("🎁 FREE SPIN! Sisa: "+freeSpins);}
+  updateUI();
+  const reels=document.querySelectorAll(".reel-inner");
+  let crownCount=0;
+  reels.forEach((reel,index)=>{
+    reel.style.transition="none"; reel.style.top="0px";
+    setTimeout(()=>{ reel.style.transition="top 1s ease-out"; reel.style.top="-350px"; }, index*200);
+    setTimeout(()=>{
+      reel.style.transition="none"; reel.style.top="0px"; reel.innerHTML="";
+      for(let j=0;j<10;j++){
+        const sym=document.createElement("div");
+        sym.className="symbol"; sym.innerText=randomSymbol(); reel.appendChild(sym);
+        if(sym.innerText==="💎") crownCount++;
+      }
+    },1200+index*200);
+  });
+  setTimeout(()=>{
+    let winAmount=0;
+    if(crownCount>=3){ freeSpins+=5; bonusMode=true; document.body.classList.add("bonus-mode"); alert("🔥 FREE SPIN MODE!"); }
+    let winChance=Math.random();
+    if(winChance>0.7){ let multiplier=bonusMode?10:5; winAmount=bet*multiplier; balance+=winAmount; bigwinEl.style.display="block"; setTimeout(()=>bigwinEl.style.display="none",1500); updateUI(); }
+    if(freeSpins===0){ bonusMode=false; document.body.classList.remove("bonus-mode"); }
+    const user=auth.currentUser;
+    if(user){
+      const userRef=db.collection("users").doc(user.uid);
+      userRef.set({balance:balance},{merge:true});
+      const spinData={timestamp:Date.now(), bet:bet, win:winAmount};
+      userRef.collection("history").add(spinData).then(()=>loadHistory(user.uid));
     }
-    reel.appendChild(inner);
-    slot.appendChild(reel);
-  }
+  },1800);
 }
 
 // ===== HISTORY =====
 function loadHistory(uid){
   historyDiv.innerHTML="";
   db.collection("users").doc(uid).collection("history").orderBy("timestamp","desc").limit(20).get()
-  .then(snapshot=>{
-    snapshot.forEach(doc=>{
-      const data=doc.data();
-      const time=new Date(data.timestamp).toLocaleTimeString();
-      const entry=document.createElement("div");
-      entry.innerText=`[${time}] Bet: ${data.bet} | Win: ${data.win}`;
-      historyDiv.appendChild(entry);
-    });
-  });
+  .then(snapshot=>{ snapshot.forEach(doc=>{ const data=doc.data(); const time=new Date(data.timestamp).toLocaleTimeString(); const entry=document.createElement("div"); entry.innerText=`[${time}] Bet: ${data.bet} | Win: ${data.win}`; historyDiv.appendChild(entry); }); });
 }
 
 // ===== CHAT =====
@@ -296,23 +290,17 @@ function sendMessage(){
   if(!msg) return;
   const user=auth.currentUser;
   if(!user){ alert("Login dulu!"); return; }
-  db.collection("chat").add({
-    user:user.email,
-    message:msg,
-    timestamp:Date.now()
-  }).then(()=>chatInput.value="");
+  db.collection("chat").add({user:user.email,message:msg,timestamp:Date.now()}).then(()=>chatInput.value="");
 }
 function loadChat(){
   db.collection("chat").orderBy("timestamp","asc").onSnapshot(snapshot=>{
     chatContainer.innerHTML="";
     snapshot.forEach(doc=>{
-      const data=doc.data();
-      const time=new Date(data.timestamp).toLocaleTimeString();
+      const data=doc.data(); const time=new Date(data.timestamp).toLocaleTimeString();
       const bubble=document.createElement("div");
       bubble.className = data.user===auth.currentUser.email ? "chat-bubble chat-me":"chat-bubble chat-other";
       bubble.innerHTML=`${data.message}<div class="chat-time">${time}</div>`;
-      chatContainer.appendChild(bubble);
-      chatContainer.scrollTop=chatContainer.scrollHeight;
+      chatContainer.appendChild(bubble); chatContainer.scrollTop=chatContainer.scrollHeight;
     });
   });
 }
