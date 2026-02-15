@@ -374,9 +374,21 @@ function generateCaptcha(){
 generateCaptcha();
 
 function submitRegister(){
+
+  let username = document.getElementById("regUsername").value;
+  let email = document.getElementById("regEmail").value;
   let pass = document.getElementById("regPassword").value;
   let confirm = document.getElementById("regConfirm").value;
+  let phone = document.getElementById("regPhone").value;
+  let bank = document.getElementById("regBank").value;
+  let rekName = document.getElementById("regRekName").value;
+  let rekNo = document.getElementById("regRekNo").value;
   let captchaInput = document.getElementById("captchaInput").value;
+
+  if(!username || !email || !pass || !phone){
+    alert("Isi semua data wajib!");
+    return;
+  }
 
   if(pass !== confirm){
     alert("Password tidak sama!");
@@ -389,9 +401,31 @@ function submitRegister(){
     return;
   }
 
-  alert("Register Berhasil 🔥 (nanti bisa kita sambungkan ke Firebase)");
-  }  
+  // ===== BUAT AKUN AUTH =====
+  auth.createUserWithEmailAndPassword(email,pass)
+    .then(cred=>{
 
+      // ===== SIMPAN DATA KE FIRESTORE =====
+      db.collection("users").doc(cred.user.uid).set({
+        username: username,
+        email: email,
+        phone: phone,
+        bank: bank,
+        rekName: rekName,
+        rekNo: rekNo,
+        balance: 10000, // saldo awal
+        createdAt: Date.now()
+      });
+
+      alert("Register Berhasil 🔥 Saldo Awal 10.000");
+      generateCaptcha();
+
+    })
+    .catch(err=>{
+      alert("Gagal register: "+err.message);
+    });
+
+                       }
 // ===== INIT =====
 createReels();
 updateUI();
