@@ -52,6 +52,52 @@ button{cursor:pointer;}
 #chatInputContainer{display:flex;margin-top:5px;}
 #chatInputContainer input{flex:1;padding:8px;border-radius:20px;border:none;}
 #chatInputContainer button{padding:8px 15px;margin-left:5px;border:none;border-radius:20px;background:#ff6600;color:white;cursor:pointer;}
+  /* ===== SIDEBAR ===== */
+.sidebar{
+  position:fixed;
+  top:0;
+  left:-260px;
+  width:250px;
+  height:100%;
+  background:#0d0d0d;
+  transition:0.3s;
+  padding-top:20px;
+  box-shadow:2px 0 10px rgba(0,0,0,0.8);
+  z-index:2000;
+}
+.sidebar.active{ left:0; }
+
+.sidebar a{
+  display:block;
+  padding:12px 20px;
+  color:white;
+  text-decoration:none;
+  border-bottom:1px solid #222;
+}
+.sidebar a:hover{
+  background:gold;
+  color:black;
+}
+
+.close-btn{
+  position:absolute;
+  top:10px;
+  right:15px;
+  font-size:20px;
+  cursor:pointer;
+}
+
+.menu-btn{
+  position:fixed;
+  top:15px;
+  left:15px;
+  background:gold;
+  color:black;
+  padding:6px 12px;
+  border-radius:5px;
+  cursor:pointer;
+  z-index:2100;
+}
 </style>
 
 <!-- FIREBASE -->
@@ -60,6 +106,16 @@ button{cursor:pointer;}
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
+ <div class="menu-btn" onclick="openMenu()">☰</div>
+
+<div class="sidebar" id="sidebar">
+  <span class="close-btn" onclick="closeMenu()">✖</span>
+  <a href="#">Notifikasi</a>
+  <a href="#">History</a>
+  <a href="#">Transaksi</a>
+  <a href="#">Bonus</a>
+  <a href="#">Promosi</a>
+</div> 
 
 <h1>🎰 ALABIO TOTO</h1>
 
@@ -325,6 +381,13 @@ function loadChat(){
       chatContainer.scrollTop=chatContainer.scrollHeight;
     });
   });
+}
+  function openMenu(){
+  document.getElementById("sidebar").classList.add("active");
+}
+
+function closeMenu(){
+  document.getElementById("sidebar").classList.remove("active");
 }
 </script>
 </body>
