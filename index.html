@@ -137,7 +137,8 @@ button{cursor:pointer;}
 
   <div class="menu-list">
     <a href="#">📜 History</a>
-    <a href="#">💰 Transaksi</a>
+    <a href="#" onclick="showDeposit()">💰 Deposit</a>
+    <a href="#" onclick="showWithdraw()">🏧 Withdraw</a>
     <a href="#">🎁 Bonus</a>
     <a href="#">🎉 Promosi</a>
     <a href="#" onclick="logoutUser()">🚪 Logout</a>
@@ -231,7 +232,21 @@ button{cursor:pointer;}
   <button onclick="sendMessage()">KIRIM</button>
 </div>
 </div>
+<!-- DEPOSIT BOX -->
+<div id="depositBox" class="box" style="display:none;">
+  <h2>💰 Deposit</h2>
+  <input type="number" id="depositAmount" placeholder="Masukkan jumlah">
+  <br><br>
+  <button onclick="submitDeposit()">Kirim Deposit</button>
+</div>
 
+<!-- WITHDRAW BOX -->
+<div id="withdrawBox" class="box" style="display:none;">
+  <h2>🏧 Withdraw</h2>
+  <input type="number" id="withdrawAmount" placeholder="Masukkan jumlah">
+  <br><br>
+  <button onclick="submitWithdraw()">Kirim Withdraw</button>
+</div>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyClAxn0V3k-0taY76A4HN1qS4_o483ba8U",
@@ -427,6 +442,67 @@ function toggleChat(){
   document.getElementById("chatContainer").scrollIntoView({behavior:"smooth"});
   closeMenu();
     } 
+function showDeposit(){
+  document.getElementById("depositBox").style.display="block";
+  document.getElementById("withdrawBox").style.display="none";
+  closeMenu();
+}
+
+function showWithdraw(){
+  document.getElementById("withdrawBox").style.display="block";
+  document.getElementById("depositBox").style.display="none";
+  closeMenu();
+}
+
+function submitDeposit(){
+  const amount = parseInt(document.getElementById("depositAmount").value);
+  if(!amount || amount <= 0) return alert("Masukkan jumlah valid!");
+
+  const user = auth.currentUser;
+  if(!user) return alert("Login dulu!");
+
+  const userRef = db.collection("users").doc(user.uid);
+
+  userRef.get().then(doc=>{
+    let currentBalance = doc.data().balance || 0;
+    let newBalance = currentBalance + amount;
+
+    userRef.update({balance:newBalance}).then(()=>{
+      balance = newBalance;
+      updateUI();
+      alert("Deposit berhasil ✅");
+      document.getElementById("depositBox").style.display="none";
+    });
+  });
+}
+
+function submitWithdraw(){
+  const amount = parseInt(document.getElementById("withdrawAmount").value);
+  if(!amount || amount <= 0) return alert("Masukkan jumlah valid!");
+
+  const user = auth.currentUser;
+  if(!user) return alert("Login dulu!");
+
+  const userRef = db.collection("users").doc(user.uid);
+
+  userRef.get().then(doc=>{
+    let currentBalance = doc.data().balance || 0;
+
+    if(amount > currentBalance){
+      alert("Saldo tidak cukup!");
+      return;
+    }
+
+    let newBalance = currentBalance - amount;
+
+    userRef.update({balance:newBalance}).then(()=>{
+      balance = newBalance;
+      updateUI();
+      alert("Withdraw berhasil ✅");
+      document.getElementById("withdrawBox").style.display="none";
+    });
+  });
+}  
 </script>
 </body>
 </html>
