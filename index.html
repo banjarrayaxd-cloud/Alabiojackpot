@@ -247,6 +247,8 @@ button{cursor:pointer;}
 <!-- DEPOSIT BOX -->
 <div id="depositBox" class="box" style="display:none;">
   <h2>💰 Deposit</h2>
+  <p>Silakan transfer ke rekening berikut:</p>
+  <p style="font-weight:bold;">123-456-789 (Dana a/n Maha guru)</p>
   <input type="number" id="depositAmount" placeholder="Masukkan jumlah">
   <br><br>
   <button onclick="submitDeposit()">Kirim Deposit</button>
@@ -257,6 +259,8 @@ button{cursor:pointer;}
 <!-- WITHDRAW BOX -->
 <div id="withdrawBox" class="box" style="display:none;">
   <h2>🏧 Withdraw</h2>
+  <p>Withdraw akan dikirim ke rekening Anda:</p>
+  <p id="userRekInfo" style="font-weight:bold;"></p>
   <input type="number" id="withdrawAmount" placeholder="Masukkan jumlah">
   <br><br>
   <button onclick="submitWithdraw()">Kirim Withdraw</button>
