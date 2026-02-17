@@ -516,13 +516,7 @@ function submitWithdraw(){
       updateUI();
       alert("Withdraw tercatat ✅ Silakan cek rekening Anda (" + doc.data().bank + " a/n " + doc.data().rekName + ")");
       closeWithdraw();
-      function closeDeposit(){
-  document.getElementById("depositBox").style.display = "none";
-}
-
-function closeWithdraw(){
-  document.getElementById("withdrawBox").style.display = "none";
-  }
+      
     });
   });
   }
