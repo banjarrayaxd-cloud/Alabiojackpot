@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -52,7 +52,7 @@ button{cursor:pointer;}
 #chatInputContainer{display:flex;margin-top:5px;}
 #chatInputContainer input{flex:1;padding:8px;border-radius:20px;border:none;}
 #chatInputContainer button{padding:8px 15px;margin-left:5px;border:none;border-radius:20px;background:#ff6600;color:white;cursor:pointer;}
-/* ===== SIDEBAR ===== */
+  /* ===== SIDEBAR ===== */
 .sidebar{
   position:fixed;
   top:0;
@@ -65,7 +65,11 @@ button{cursor:pointer;}
   box-shadow:4px 0 15px rgba(0,0,0,0.8);
   overflow-y:auto;
 }
-.sidebar.active{left:0;}
+
+.sidebar.active{
+  left:0;
+}
+
 .sidebar-header{
   background:linear-gradient(90deg,gold,#ffcc00);
   color:black;
@@ -76,6 +80,7 @@ button{cursor:pointer;}
   align-items:center;
   cursor:pointer;
 }
+
 .chat-badge{
   background:red;
   color:white;
@@ -83,6 +88,7 @@ button{cursor:pointer;}
   padding:2px 6px;
   border-radius:10px;
 }
+
 .menu-list a{
   display:block;
   padding:14px 18px;
@@ -91,160 +97,430 @@ button{cursor:pointer;}
   border-bottom:1px solid #222;
   transition:0.3s;
 }
+
 .menu-list a:hover{
   background:gold;
   color:black;
   padding-left:25px;
 }
+
+.menu-btn{
+  position:fixed;
+  top:15px;
+  left:15px;
+  background:gold;
+  color:black;
+  padding:6px 12px;
+  border-radius:5px;
+  cursor:pointer;
+  z-index:3500;
+  font-weight:bold;
+  }
+  #depositBox,
+#withdrawBox{
+  position: fixed;
+  top: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111;
+  padding: 20px;
+  border-radius: 10px;
+  z-index: 9999;
+}
 </style>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
+ <div class="menu-btn" onclick="openMenu()">☰</div>
 
-<!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
+
   <div class="sidebar-header" onclick="toggleChat()">
     <div>💬 Live Chat</div>
     <div>
       <span class="chat-badge" id="chatBadge">0</span>
     </div>
   </div>
+
   <div class="menu-list">
     <a href="#">📜 History</a>
-    <a href="#" onclick="showDeposit()">💰 Deposit</a>
-    <a href="#" onclick="showWithdraw()">🏧 Withdraw</a>
+    <a href="javascript:void(0);" onclick="showDeposit()">💰 Deposit</a>
+<a href="javascript:void(0);" onclick="showWithdraw()">🏧 Withdraw</a>
     <a href="#">🎁 Bonus</a>
     <a href="#">🎉 Promosi</a>
     <a href="#" onclick="logoutUser()">🚪 Logout</a>
   </div>
+
+</div>
+
+<h1>🎰 ALABIO TOTO</h1>
+
+<!-- REGISTER BOX -->
+<div id="registerBox" class="box">
+<h2>Register</h2>
+<div class="form-group">
+  <label>Username *</label>
+  <input type="text" id="regUsername" placeholder="Username">
+</div>
+<div class="form-group">
+  <label>Password *</label>
+  <input type="password" id="regPassword" placeholder="Password">
+</div>
+<div class="form-group">
+  <label>Konfirmasi Password *</label>
+  <input type="password" id="regConfirm" placeholder="Konfirmasi Password">
+</div>
+<div class="form-group">
+  <label>Email *</label>
+  <input type="email" id="regEmail" placeholder="Alamat email anda">
+</div>
+<div class="form-group">
+  <label>No. Telp/HP *</label>
+  <div style="display:flex;">
+    <span style="background:orange;padding:10px;border-radius:8px 0 0 8px;">+62</span>
+    <input type="text" id="regPhone" placeholder="Nomor telepon anda" style="border-radius:0 8px 8px 0;">
+  </div>
+</div>
+<h3>Pengaturan Bank</h3>
+<div class="form-group">
+  <label>Nama Bank *</label>
+  <select id="regBank">
+    <option>BCA</option><option>BRI</option><option>BNI</option>
+    <option>MANDIRI</option><option>DANA</option><option>OVO</option><option>GOPAY</option>
+  </select>
+</div>
+<div class="form-group">
+  <label>Nama Rekening *</label>
+  <input type="text" id="regRekName">
+</div>
+<div class="form-group">
+  <label>Nomor Rekening *</label>
+  <input type="text" id="regRekNo">
+</div>
+<div class="form-group">
+  <label>Captcha *</label>
+  <div style="display:flex;align-items:center;">
+    <span id="captchaText" style="background:#cde;padding:10px;font-weight:bold;"></span>
+    <button type="button" onclick="generateCaptcha()" style="margin-left:5px;">↻</button>
+  </div>
+  <input type="text" id="captchaInput" placeholder="Masukkan captcha">
+</div>
+<button onclick="submitRegister()">DAFTAR</button>
+<p style="margin-top:10px;">Sudah punya akun? <span style="color:orange; cursor:pointer;" onclick="showLogin()">Login disini</span></p>
 </div>
 
 <!-- LOGIN BOX -->
-<div id="loginBox" class="box">
-  <h1>Login</h1>
+<div id="loginBox" class="box" style="display:none;">
+<h2>Login</h2>
+<div class="form-group">
+  <label>Email</label>
   <input type="email" id="loginEmail" placeholder="Email">
+</div>
+<div class="form-group">
+  <label>Password</label>
   <input type="password" id="loginPass" placeholder="Password">
-  <br><br>
-  <button onclick="loginUser()">Login</button>
+</div>
+<button onclick="loginUser()">LOGIN</button>
+<p style="margin-top:10px;">Belum punya akun? <span style="color:orange; cursor:pointer;" onclick="showRegister()">Register disini</span></p>
 </div>
 
+<!-- GAME BOX -->
+<div id="gameBox">
+<h2>🎰 Slot Game</h2>
+<p>Saldo: <span id="balance"></span> | Bet: <span id="bet"></span></p>
+<button id="logoutBtn" onclick="logoutUser()">Logout</button>
+<div class="slot" id="slot"></div>
+<button class="spin" onclick="spin()">SPIN</button>
+<div id="bigwin" class="bigwin">BIG WIN!</div>
+<div id="history"></div>
+<div id="chatContainer"></div>
+<div id="chatInputContainer">
+  <input type="text" id="chatInput" placeholder="Tulis pesan...">
+  <button onclick="sendMessage()">KIRIM</button>
+</div>
+</div>
+<!-- DEPOSIT BOX -->
 <!-- DEPOSIT BOX -->
 <div id="depositBox" class="box" style="display:none;">
   <h2>💰 Deposit</h2>
   <input type="number" id="depositAmount" placeholder="Masukkan jumlah">
-  <input type="text" id="depositRek" value="1234567890" readonly>
-  <small>Rekening tujuan: Rek bos</small>
   <br><br>
   <button onclick="submitDeposit()">Kirim Deposit</button>
+  <br><br>
+  <button onclick="closeDeposit()">Tutup</button>
 </div>
 
 <!-- WITHDRAW BOX -->
 <div id="withdrawBox" class="box" style="display:none;">
   <h2>🏧 Withdraw</h2>
   <input type="number" id="withdrawAmount" placeholder="Masukkan jumlah">
-  <input type="text" id="withdrawRek" placeholder="Masukkan nomor rekening Anda">
   <br><br>
   <button onclick="submitWithdraw()">Kirim Withdraw</button>
+  <br><br>
+  <button onclick="closeWithdraw()">Tutup</button>
 </div>
-
-<!-- GAME BOX -->
-<div id="gameBox">
-  <div class="topbar">
-    <div>Balance: <span id="balanceEl">0</span></div>
-    <div>Bet: <span id="betEl">1000</span></div>
-  </div>
-  <div class="slot" id="slot"></div>
-  <div class="controls">
-    <button class="spin" onclick="spin()">SPIN</button>
-  </div>
-  <div id="history"></div>
-
-  <!-- CHAT -->
-  <div id="chatContainer"></div>
-  <div id="chatInputContainer">
-    <input type="text" id="chatInput" placeholder="Ketik pesan...">
-    <button onclick="sendMessage()">Kirim</button>
-  </div>
 </div>
-
-<div class="bigwin" id="bigwinEl">BIG WIN!</div>
-
 <script>
-// ===== FIREBASE INIT (isi sesuai proyek Anda) =====
-// const firebaseConfig = {...};
-// firebase.initializeApp(firebaseConfig);
-// const auth = firebase.auth();
-// const db = firebase.firestore();
+const firebaseConfig = {
+  apiKey: "AIzaSyClAxn0V3k-0taY76A4HN1qS4_o483ba8U",
+  authDomain: "alabio-slot.firebaseapp.com",
+  projectId: "alabio-slot",
+  storageBucket: "alabio-slot.firebasestorage.app",
+  messagingSenderId: "418392865685",
+  appId: "1:418392865685:web:50a233aad7e8d32712949c"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-// ===== GLOBAL VAR =====
 let balance = 0;
 let bet = 1000;
 let freeSpins = 0;
 let bonusMode = false;
-let symbols = ["🍒","🍋","🍉","💎","⭐"];
-const balanceEl = document.getElementById("balanceEl");
-const betEl = document.getElementById("betEl");
-const slot = document.getElementById("slot");
-const historyDiv = document.getElementById("history");
-const chatContainer = document.getElementById("chatContainer");
-const chatInput = document.getElementById("chatInput");
+const symbols=["🀄","🀅","🀆","🀇","🀈","🀉","💎"];
+const slot=document.getElementById("slot");
+const balanceEl=document.getElementById("balance");
+const betEl=document.getElementById("bet");
+const bigwinEl=document.getElementById("bigwin");
+const registerBox=document.getElementById("registerBox");
+const loginBox=document.getElementById("loginBox");
+const gameBox=document.getElementById("gameBox");
+const historyDiv=document.getElementById("history");
+const chatContainer=document.getElementById("chatContainer");
+const chatInput=document.getElementById("chatInput");
 
-// ===== AUTH & USER =====
-function loginUser(){ /* isi login sesuai firebase */ }
-function logoutUser(){ /* isi logout */ }
+let currentCaptcha="";
+function generateCaptcha(){
+  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  currentCaptcha="";
+  for(let i=0;i<5;i++){
+    currentCaptcha+=chars.charAt(Math.floor(Math.random()*chars.length));
+  }
+  document.getElementById("captchaText").innerText=currentCaptcha;
+}
+window.onload=function(){ generateCaptcha(); createReels(); updateUI(); }
 
-// ===== DEPOSIT & WITHDRAW =====
-function showDeposit(){ document.getElementById("depositBox").style.display="block"; document.getElementById("withdrawBox").style.display="none"; closeMenu(); }
-function showWithdraw(){ document.getElementById("withdrawBox").style.display="block"; document.getElementById("depositBox").style.display="none"; closeMenu(); }
+function submitRegister(){
+  let username=document.getElementById("regUsername").value;
+  let email=document.getElementById("regEmail").value;
+  let pass=document.getElementById("regPassword").value;
+  let confirm=document.getElementById("regConfirm").value;
+  let phone=document.getElementById("regPhone").value;
+  let bank=document.getElementById("regBank").value;
+  let rekName=document.getElementById("regRekName").value;
+  let rekNo=document.getElementById("regRekNo").value;
+  let captchaInput=document.getElementById("captchaInput").value;
+
+  if(!username || !email || !pass || !phone){
+    alert("Isi semua data wajib!");
+    return;
+  }
+  if(pass!==confirm){
+    alert("Password tidak sama!");
+    return;
+  }
+  if(captchaInput!==currentCaptcha){
+    alert("Captcha salah!");
+    generateCaptcha();
+    return;
+  }
+
+  auth.createUserWithEmailAndPassword(email, pass)
+  .then(cred=>{
+    db.collection("users").doc(cred.user.uid).set({
+      username,email,phone,bank,rekName,rekNo,balance:10000,createdAt:Date.now()
+    });
+    alert("Register berhasil 🔥 Silakan login");
+    registerBox.style.display="none";
+    loginBox.style.display="block";
+    generateCaptcha();
+  })
+  .catch(err=>{ alert("Gagal register: "+err.message); });
+}
+
+function showLogin(){ registerBox.style.display="none"; loginBox.style.display="block"; }
+function showRegister(){ registerBox.style.display="block"; loginBox.style.display="none"; }
+
+function loginUser(){
+  const email=document.getElementById("loginEmail").value;
+  const pass=document.getElementById("loginPass").value;
+  if(!email || !pass){ alert("Isi email & password!"); return; }
+  auth.signInWithEmailAndPassword(email, pass)
+  .then(cred=>{
+    alert("Login sukses: "+cred.user.email);
+    loginBox.style.display="none";
+    gameBox.style.display="block";
+    initUser(cred.user);
+  })
+  .catch(err=>alert("Gagal login: "+err.message));
+}
+
+function logoutUser(){
+  auth.signOut().then(()=>{
+    gameBox.style.display="none";
+    loginBox.style.display="block";
+    closeMenu(); // 🔥 ini yang bikin sidebar nutup
+  });
+    }
+function initUser(user){
+  const userDoc=db.collection("users").doc(user.uid);
+  userDoc.get().then(doc=>{
+    if(doc.exists) balance=doc.data().balance; else { userDoc.set({balance:1000000}); balance=1000000; }
+    updateUI();
+    loadHistory(user.uid);
+    loadChat();
+  });
+}
+
+function updateUI(){ balanceEl.innerText="Rp "+balance.toLocaleString("id-ID"); betEl.innerText="Rp "+bet.toLocaleString("id-ID"); }
+
+function randomSymbol(){ return symbols[Math.floor(Math.random()*symbols.length)]; }
+function createReels(){
+  slot.innerHTML="";
+  for(let i=0;i<5;i++){
+    const reel=document.createElement("div"); reel.className="reel";
+    const inner=document.createElement("div"); inner.className="reel-inner";
+    for(let j=0;j<10;j++){ const sym=document.createElement("div"); sym.className="symbol"; sym.innerText=randomSymbol(); inner.appendChild(sym); }
+    reel.appendChild(inner); slot.appendChild(reel);
+  }
+}
+
+function spin(){
+  if(balance<bet && freeSpins===0) return alert("Saldo habis!");
+  if(freeSpins===0) balance-=bet; else {freeSpins--; alert("🎁 FREE SPIN! Sisa: "+freeSpins);}
+  updateUI();
+  const reels=document.querySelectorAll(".reel-inner");
+  let crownCount=0;
+  reels.forEach((reel,index)=>{
+    reel.style.transition="none"; reel.style.top="0px";
+    setTimeout(()=>{ reel.style.transition="top 1s ease-out"; reel.style.top="-350px"; }, index*200);
+    setTimeout(()=>{
+      reel.style.transition="none"; reel.style.top="0px"; reel.innerHTML="";
+      for(let j=0;j<10;j++){ const sym=document.createElement("div"); sym.className="symbol"; sym.innerText=randomSymbol(); reel.appendChild(sym); if(sym.innerText==="💎") crownCount++; }
+    },1200+index*200);
+  });
+  setTimeout(()=>{
+    let winAmount=0;
+    if(crownCount>=3){ freeSpins+=5; bonusMode=true; document.body.classList.add("bonus-mode"); alert("🔥 FREE SPIN MODE AKTIF! 5 SPIN + WIN x10"); }
+    let winChance=Math.random();
+    if(winChance>0.7){ let multiplier=bonusMode?10:5; winAmount=bet*multiplier; balance+=winAmount; bigwinEl.style.display="block"; setTimeout(()=>bigwinEl.style.display="none",1500); updateUI(); }
+    if(freeSpins===0){ bonusMode=false; document.body.classList.remove("bonus-mode"); }
+    const user=auth.currentUser;
+    if(user){
+      const userRef=db.collection("users").doc(user.uid);
+      userRef.set({balance:balance});
+      const spinData={timestamp:Date.now(),bet:bet,win:winAmount};
+      userRef.collection("history").add(spinData).then(()=>loadHistory(user.uid));
+    }
+  },1800);
+}
+
+function loadHistory(uid){
+  historyDiv.innerHTML="";
+  db.collection("users").doc(uid).collection("history").orderBy("timestamp","desc").limit(20).get()
+  .then(snapshot=>{ snapshot.forEach(doc=>{ const data=doc.data(); const time=new Date(data.timestamp).toLocaleTimeString(); const entry=document.createElement("div"); entry.innerText=`[${time}] Bet: ${data.bet} | Win: ${data.win}`; historyDiv.appendChild(entry); }); });
+}
+
+function sendMessage(){
+  const msg=chatInput.value.trim();
+  if(!msg) return;
+  const user=auth.currentUser;
+  if(!user) return alert("Login dulu untuk chat!");
+  db.collection("chat").add({user:user.email,message:msg,timestamp:Date.now()}).then(()=>chatInput.value="");
+}
+
+function loadChat(){
+  db.collection("chat").orderBy("timestamp","asc").onSnapshot(snapshot=>{
+    chatContainer.innerHTML="";
+    snapshot.forEach(doc=>{
+      const data=doc.data();
+      const time=new Date(data.timestamp).toLocaleTimeString();
+      const bubble=document.createElement("div");
+      bubble.className=data.user===auth.currentUser.email ? "chat-bubble chat-me" : "chat-bubble chat-other";
+      bubble.innerHTML=`${data.message}<div class="chat-time">${time}</div>`;
+      chatContainer.appendChild(bubble);
+      chatContainer.scrollTop=chatContainer.scrollHeight;
+    });
+  });
+}
+function openMenu(){
+  document.getElementById("sidebar").classList.add("active");
+}
+
+function closeMenu(){
+  document.getElementById("sidebar").classList.remove("active");
+}
+
+function toggleChat(){
+  document.getElementById("chatContainer").scrollIntoView({behavior:"smooth"});
+  closeMenu();
+    } 
+function showDeposit(){
+  document.getElementById("depositBox").style.display="block";
+  document.getElementById("withdrawBox").style.display="none";
+  closeMenu();
+}
+
+function showWithdraw(){
+  document.getElementById("withdrawBox").style.display="block";
+  document.getElementById("depositBox").style.display="none";
+  closeMenu();
+}
 
 function submitDeposit(){
   const amount = parseInt(document.getElementById("depositAmount").value);
-  const rek = document.getElementById("depositRek").value;
-  if(!amount || amount<=0) return alert("Masukkan jumlah valid!");
+  if(!amount || amount <= 0) return alert("Masukkan jumlah valid!");
+
   const user = auth.currentUser;
   if(!user) return alert("Login dulu!");
+
   const userRef = db.collection("users").doc(user.uid);
+
   userRef.get().then(doc=>{
     let currentBalance = doc.data().balance || 0;
     let newBalance = currentBalance + amount;
+
     userRef.update({balance:newBalance}).then(()=>{
       balance = newBalance;
       updateUI();
-      alert(`Deposit berhasil ✅\nJumlah: ${amount}\nRekening Tujuan: ${rek}`);
+      alert("Deposit berhasil ✅");
       document.getElementById("depositBox").style.display="none";
-      document.getElementById("depositAmount").value="";
     });
   });
 }
 
 function submitWithdraw(){
   const amount = parseInt(document.getElementById("withdrawAmount").value);
-  const rek = document.getElementById("withdrawRek").value.trim();
-  if(!amount || amount<=0) return alert("Masukkan jumlah valid!");
-  if(!rek) return alert("Masukkan nomor rekening Anda!");
+  if(!amount || amount <= 0) return alert("Masukkan jumlah valid!");
+
   const user = auth.currentUser;
   if(!user) return alert("Login dulu!");
+
   const userRef = db.collection("users").doc(user.uid);
+
   userRef.get().then(doc=>{
     let currentBalance = doc.data().balance || 0;
-    if(amount>currentBalance){ alert("Saldo tidak cukup!"); return; }
+
+    if(amount > currentBalance){
+      alert("Saldo tidak cukup!");
+      return;
+    }
+
     let newBalance = currentBalance - amount;
+
     userRef.update({balance:newBalance}).then(()=>{
       balance = newBalance;
       updateUI();
-      alert(`Withdraw berhasil ✅\nJumlah: ${amount}\nRekening Anda: ${rek}`);
+      alert("Withdraw berhasil ✅");
       document.getElementById("withdrawBox").style.display="none";
-      document.getElementById("withdrawAmount").value="";
-      document.getElementById("withdrawRek").value="";
     });
   });
-}
-
-// ===== UI & CHAT =====
-function updateUI(){ balanceEl.innerText="Rp "+balance.toLocaleString("id-ID"); betEl.innerText="Rp "+bet.toLocaleString("id-ID"); }
-function openMenu(){ document.getElementById("sidebar").classList.add("active"); }
-function closeMenu(){ document.getElementById("sidebar").classList.remove("active"); }
-function toggleChat(){ document.getElementById("chatContainer").scrollIntoView({behavior:"smooth"}); closeMenu(); }
-function sendMessage(){ const msg=chatInput.value.trim(); if(!msg) return; const user=auth.currentUser; if(!user) return alert("Login dulu untuk chat!"); db.collection("chat").add({user:user.email,message:msg,timestamp:Date.now()}).then(()=>chatInput.value=""); }
+}  
+  
 </script>
 </body>
 </html>
