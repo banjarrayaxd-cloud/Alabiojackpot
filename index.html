@@ -244,11 +244,14 @@ button{cursor:pointer;}
 </div>
 </div>
 <!-- DEPOSIT BOX -->
+<!-- DEPOSIT BOX -->
 <div id="depositBox" class="box" style="display:none;">
   <h2>💰 Deposit</h2>
   <input type="number" id="depositAmount" placeholder="Masukkan jumlah">
   <br><br>
   <button onclick="submitDeposit()">Kirim Deposit</button>
+  <br><br>
+  <button onclick="closeDeposit()">Tutup</button>
 </div>
 
 <!-- WITHDRAW BOX -->
@@ -257,6 +260,9 @@ button{cursor:pointer;}
   <input type="number" id="withdrawAmount" placeholder="Masukkan jumlah">
   <br><br>
   <button onclick="submitWithdraw()">Kirim Withdraw</button>
+  <br><br>
+  <button onclick="closeWithdraw()">Tutup</button>
+</div>
 </div>
 <script>
 const firebaseConfig = {
