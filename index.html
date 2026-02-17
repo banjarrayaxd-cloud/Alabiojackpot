@@ -410,13 +410,18 @@ function loadChat(){
     });
   });
 }
-  function openMenu(){
+ function openMenu(){
   document.getElementById("sidebar").classList.add("active");
-    function toggleChat(){
+}
+
+function closeMenu(){
+  document.getElementById("sidebar").classList.remove("active");
+}
+
+function toggleChat(){
   document.getElementById("chatContainer").scrollIntoView({behavior:"smooth"});
   closeMenu();
-    }
-
+  } 
 function closeMenu(){
   document.getElementById("sidebar").classList.remove("active");
 }
