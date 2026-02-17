@@ -327,8 +327,13 @@ function loginUser(){
   .catch(err=>alert("Gagal login: "+err.message));
 }
 
-function logoutUser(){ auth.signOut().then(()=>{ gameBox.style.display="none"; loginBox.style.display="block"; }); }
-
+function logoutUser(){
+  auth.signOut().then(()=>{
+    gameBox.style.display="none";
+    loginBox.style.display="block";
+    closeMenu(); // 🔥 ini yang bikin sidebar nutup
+  });
+    }
 function initUser(user){
   const userDoc=db.collection("users").doc(user.uid);
   userDoc.get().then(doc=>{
