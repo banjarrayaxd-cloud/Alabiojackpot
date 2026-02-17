@@ -56,35 +56,52 @@ button{cursor:pointer;}
 .sidebar{
   position:fixed;
   top:0;
-  left:-260px;
-  width:250px;
+  left:-270px;
+  width:260px;
   height:100%;
-  background:#0d0d0d;
-  transition:0.3s;
-  padding-top:20px;
-  box-shadow:2px 0 10px rgba(0,0,0,0.8);
-  z-index:2000;
+  background:linear-gradient(180deg,#111,#000);
+  transition:0.4s ease;
+  z-index:3000;
+  box-shadow:4px 0 15px rgba(0,0,0,0.8);
+  overflow-y:auto;
 }
-.sidebar.active{ left:0; }
 
-.sidebar a{
+.sidebar.active{
+  left:0;
+}
+
+.sidebar-header{
+  background:linear-gradient(90deg,gold,#ffcc00);
+  color:black;
+  padding:15px;
+  font-weight:bold;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  cursor:pointer;
+}
+
+.chat-badge{
+  background:red;
+  color:white;
+  font-size:12px;
+  padding:2px 6px;
+  border-radius:10px;
+}
+
+.menu-list a{
   display:block;
-  padding:12px 20px;
+  padding:14px 18px;
   color:white;
   text-decoration:none;
   border-bottom:1px solid #222;
-}
-.sidebar a:hover{
-  background:gold;
-  color:black;
+  transition:0.3s;
 }
 
-.close-btn{
-  position:absolute;
-  top:10px;
-  right:15px;
-  font-size:20px;
-  cursor:pointer;
+.menu-list a:hover{
+  background:gold;
+  color:black;
+  padding-left:25px;
 }
 
 .menu-btn{
@@ -96,8 +113,9 @@ button{cursor:pointer;}
   padding:6px 12px;
   border-radius:5px;
   cursor:pointer;
-  z-index:2100;
-}
+  z-index:3500;
+  font-weight:bold;
+  }
 </style>
 
 <!-- FIREBASE -->
@@ -109,13 +127,23 @@ button{cursor:pointer;}
  <div class="menu-btn" onclick="openMenu()">☰</div>
 
 <div class="sidebar" id="sidebar">
-  <span class="close-btn" onclick="closeMenu()">✖</span>
-  <a href="#">Notifikasi</a>
-  <a href="#">History</a>
-  <a href="#">Transaksi</a>
-  <a href="#">Bonus</a>
-  <a href="#">Promosi</a>
-</div> 
+
+  <div class="sidebar-header" onclick="toggleChat()">
+    <div>💬 Live Chat</div>
+    <div>
+      <span class="chat-badge" id="chatBadge">0</span>
+    </div>
+  </div>
+
+  <div class="menu-list">
+    <a href="#">📜 History</a>
+    <a href="#">💰 Transaksi</a>
+    <a href="#">🎁 Bonus</a>
+    <a href="#">🎉 Promosi</a>
+    <a href="#" onclick="logoutUser()">🚪 Logout</a>
+  </div>
+
+</div>
 
 <h1>🎰 ALABIO TOTO</h1>
 
@@ -384,7 +412,10 @@ function loadChat(){
 }
   function openMenu(){
   document.getElementById("sidebar").classList.add("active");
-}
+    function toggleChat(){
+  document.getElementById("chatContainer").scrollIntoView({behavior:"smooth"});
+  closeMenu();
+    }
 
 function closeMenu(){
   document.getElementById("sidebar").classList.remove("active");
