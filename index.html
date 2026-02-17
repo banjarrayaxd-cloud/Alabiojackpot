@@ -478,21 +478,20 @@ function showWithdraw(){
 function submitDeposit(){
   const amount = parseInt(document.getElementById("depositAmount").value);
   if(!amount || amount <= 0) return alert("Masukkan jumlah valid!");
-
   const user = auth.currentUser;
   if(!user) return alert("Login dulu!");
-
+  
   const userRef = db.collection("users").doc(user.uid);
-
   userRef.get().then(doc=>{
-    let currentBalance = doc.data().balance || 0;
+    let currentBalance = doc.exists ? (doc.data().balance || 0) : 0;
     let newBalance = currentBalance + amount;
 
-    userRef.update({balance:newBalance}).then(()=>{
+    // Update saldo member
+    userRef.set({balance:newBalance},{merge:true}).then(()=>{
       balance = newBalance;
       updateUI();
-      alert("Deposit berhasil ✅");
-      document.getElementById("depositBox").style.display="none";
+      alert("Deposit tercatat ✅ Silakan transfer ke rekening 123-456-789 (BNI a/n BANJAR RAYA CEL)");
+      closeDeposit();
     });
   });
 }
@@ -500,30 +499,26 @@ function submitDeposit(){
 function submitWithdraw(){
   const amount = parseInt(document.getElementById("withdrawAmount").value);
   if(!amount || amount <= 0) return alert("Masukkan jumlah valid!");
-
   const user = auth.currentUser;
   if(!user) return alert("Login dulu!");
-
+  
   const userRef = db.collection("users").doc(user.uid);
-
   userRef.get().then(doc=>{
-    let currentBalance = doc.data().balance || 0;
-
+    let currentBalance = doc.exists ? (doc.data().balance || 0) : 0;
     if(amount > currentBalance){
       alert("Saldo tidak cukup!");
       return;
     }
-
     let newBalance = currentBalance - amount;
-
-    userRef.update({balance:newBalance}).then(()=>{
+    // Update saldo member
+    userRef.set({balance:newBalance},{merge:true}).then(()=>{
       balance = newBalance;
       updateUI();
-      alert("Withdraw berhasil ✅");
-      document.getElementById("withdrawBox").style.display="none";
+      alert("Withdraw tercatat ✅ Silakan cek rekening Anda (" + doc.data().bank + " a/n " + doc.data().rekName + ")");
+      closeWithdraw();
     });
   });
-}  
+  }
   
 </script>
 </body>
