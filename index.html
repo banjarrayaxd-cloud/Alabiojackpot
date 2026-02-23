@@ -310,20 +310,29 @@ const historyDiv=document.getElementById("history");
 const chatContainer=document.getElementById("chatContainer");
 const chatInput=document.getElementById("chatInput");
 
-let currentCaptcha="";
-function generateCaptcha(){
-  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let captcha="";
-  for(let i=0;i<5;i++){
-    captcha+=chars.charAt(Math.floor(Math.random()*chars.length));
-  }
-  currentCaptcha=captcha;
+let currentCaptcha = "";
 
-  const el = document.getElementById("captchaText");
-  if(el){
-    el.innerText=captcha;
+function generateCaptcha(){
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let captcha = "";
+
+  for(let i=0; i<5; i++){
+    captcha += chars[Math.floor(Math.random() * chars.length)];
   }
-  }
+
+  currentCaptcha = captcha;
+
+  setTimeout(() => {
+    const el = document.getElementById("captchaText");
+    if(el){
+      el.innerText = captcha;
+    }
+  }, 100);
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+  generateCaptcha();
+});
 function submitRegister(){
   let username=document.getElementById("regUsername").value;
   let email=document.getElementById("regEmail").value;
