@@ -248,9 +248,22 @@ button{cursor:pointer;}
 <div id="depositBox" class="box" style="display:none;">
   <h2>💰 Deposit</h2>
   <p>Silakan transfer ke rekening berikut:</p>
-  <p style="font-weight:bold;">123-456-789 (Dana a/n Maha guru)</p>
-  <input type="number" id="depositAmount" placeholder="Masukkan jumlah">
+
+  <div class="form-group">
+    <label>Pilih Bank Tujuan</label>
+    <select id="bankTujuan" onchange="gantiRekening()">
+      <option value="bca">BCA</option>
+      <option value="bri">BRI</option>
+      <option value="mandiri">MANDIRI</option>
+      <option value="seabank">SeaBank</option>
+    </select>
+  </div>
+
+  <p id="infoRek" style="font-weight:bold; margin-top:10px;"></p>
+
+  <input type="number" id="depositAmount" placeholder="Masukkan jumlah deposit">
   <br><br>
+
   <button onclick="submitDeposit()">Kirim Deposit</button>
   <br><br>
   <button onclick="closeDeposit()">Tutup</button>
@@ -516,7 +529,21 @@ function submitWithdraw(){
       updateUI();
       alert("Withdraw tercatat ✅ Silakan cek rekening Anda (" + doc.data().bank + " a/n " + doc.data().rekName + ")");
       closeWithdraw();
-      
+     function gantiRekening(){
+  const bank = document.getElementById("bankTujuan").value;
+  const info = document.getElementById("infoRek");
+
+  if(bank === "bca"){
+    info.innerHTML = "🏦 Bank BCA<br>No Rek: 1234567890<br>a/n DAYAT FIRNANDA";
+  }
+  else if(bank === "bri"){
+    info.innerHTML = "🏦 Bank BRI<br>No Rek: 9876543210<br>a/n DAYAT FIRNANDA";
+  }
+  else if(bank === "mandiri"){
+    info.innerHTML = "🏦 Bank Mandiri<br>No Rek: 1122334455<br>a/n DAYAT FIRNANDA";
+  }
+  else if(bank === "seabank"){
+    info.innerHTML = "🏦 SeaBank<br>No Rek: 5566778899<br>a/n DAYAT FIRNANDA"; 
     });
   });
   }
