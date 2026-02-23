@@ -479,8 +479,9 @@ function toggleChat(){
 function showDeposit(){
   document.getElementById("depositBox").style.display="block";
   document.getElementById("withdrawBox").style.display="none";
+  gantiRekening(); // otomatis tampil rekening default
   closeMenu();
-}
+  }
 
 function showWithdraw(){
   document.getElementById("withdrawBox").style.display="block";
