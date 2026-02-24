@@ -562,20 +562,19 @@ function gantiRekening(){
   const bank = document.getElementById("bankTujuan").value;
   const info = document.getElementById("infoRek");
 
-  if(bank === "OVO"){
+  if(bank === "ovo"){
     info.innerHTML = "OVO<br>08990632664<br>a.n FIRNANDA HIDAYAT";
   }
-  else if(bank === "GOPAY"){
+  else if(bank === "gopay"){
     info.innerHTML = "GOPAY<br>08990632664<br>a.n FIRNANDA HIDAYAT";
   }
-  else if(bank === "Dana"){
-    info.innerHTML = "Dana<br>08990632664<br>a.n FIRNANDA HIDAYAT";
+  else if(bank === "dana"){
+    info.innerHTML = "DANA<br>08990632664<br>a.n FIRNANDA HIDAYAT";
   }
   else if(bank === "seabank"){
     info.innerHTML = "SeaBank<br>901520638652<br>a.n FIRNANDA HIDAYAT";
   }
-}
-
+  }
 function closeDeposit(){
   document.getElementById("depositBox").style.display = "none";
 }
