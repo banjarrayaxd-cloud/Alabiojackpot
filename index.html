@@ -562,23 +562,26 @@ function gantiRekening(){
   const info = document.getElementById("infoRek");
 
   if(bank === "bca"){
-    info.innerHTML = "🏦 Bank BCA<br>No Rek: 1234567890<br>a/n DAYAT FIRNANDA";
+    info.innerHTML = "...";
   }
   else if(bank === "bri"){
-    info.innerHTML = "🏦 Bank BRI<br>No Rek: 9876543210<br>a/n DAYAT FIRNANDA";
+    info.innerHTML = "...";
   }
   else if(bank === "mandiri"){
-    info.innerHTML = "🏦 Bank Mandiri<br>No Rek: 1122334455<br>a/n DAYAT FIRNANDA";
+    info.innerHTML = "...";
   }
   else if(bank === "seabank"){
-    info.innerHTML = "🏦 SeaBank<br>No Rek: 5566778899<br>a/n DAYAT FIRNANDA";
-    function closeDeposit(){
+    info.innerHTML = "...";
+  }
+}
+
+function closeDeposit(){
   document.getElementById("depositBox").style.display = "none";
 }
 
 function closeWithdraw(){
   document.getElementById("withdrawBox").style.display = "none";
-  
+}
   }
 }
   
