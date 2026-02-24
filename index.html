@@ -494,8 +494,9 @@ function showDeposit(){
   document.getElementById("withdrawBox").style.display="none";
   gantiRekening(); // otomatis tampil rekening default
   closeMenu();
+  document.getElementById("depositBox").style.display = "block";
+  gantiRekening(); // otomatis tampilkan rekening default
   }
-
 function showWithdraw(){
   document.getElementById("withdrawBox").style.display="block";
   document.getElementById("depositBox").style.display="none";
@@ -562,16 +563,16 @@ function gantiRekening(){
   const info = document.getElementById("infoRek");
 
   if(bank === "bca"){
-    info.innerHTML = "...";
+    info.innerHTML = "BCA<br>1234567890<br>a.n Banjar Raya Cel";
   }
   else if(bank === "bri"){
-    info.innerHTML = "...";
+    info.innerHTML = "BRI<br>9876543210<br>a.n Banjar Raya Cel";
   }
   else if(bank === "mandiri"){
-    info.innerHTML = "...";
+    info.innerHTML = "Mandiri<br>1122334455<br>a.n Banjar Raya Cel";
   }
   else if(bank === "seabank"){
-    info.innerHTML = "...";
+    info.innerHTML = "SeaBank<br>5566778899<br>a.n Banjar Raya Cel";
   }
 }
 
